@@ -1,4 +1,7 @@
-package com.example.model
+package com.example.domain.ports
+
+import com.example.domain.model.Priority
+import com.example.domain.model.Task
 
 interface TaskRepository {
     suspend fun allTasks(): List<Task>

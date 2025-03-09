@@ -1,7 +1,10 @@
 package com.example
 
-import com.example.model.Priority
-import com.example.model.Task
+import com.example.application.services.TaskServiceImpl
+import com.example.config.ktor.configureSerialization
+import com.example.domain.model.Priority
+import com.example.domain.model.Task
+import com.example.infrastructure.rest.configureTaskRouting
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -15,8 +18,9 @@ class ApplicationTest {
     fun tasksCanBeFoundByPriority() = testApplication {
         application {
             val repository = FakeTaskRepository()
+            val service = TaskServiceImpl(repository)
             configureSerialization()
-            configureRouting(repository)
+            configureTaskRouting(service)
         }
 
         val client = createClient {
@@ -39,8 +43,9 @@ class ApplicationTest {
     fun invalidPriorityProduces400() = testApplication {
         application {
             val repository = FakeTaskRepository()
+            val service = TaskServiceImpl(repository)
             configureSerialization()
-            configureRouting(repository)
+            configureTaskRouting(service)
         }
         val response = client.get("/tasks/byPriority/Invalid")
         assertEquals(HttpStatusCode.BadRequest, response.status)
@@ -50,8 +55,9 @@ class ApplicationTest {
     fun unusedPriorityProduces404() = testApplication {
         application {
             val repository = FakeTaskRepository()
+            val service = TaskServiceImpl(repository)
             configureSerialization()
-            configureRouting(repository)
+            configureTaskRouting(service)
         }
 
         val response = client.get("/tasks/byPriority/Vital")
@@ -62,8 +68,9 @@ class ApplicationTest {
     fun newTasksCanBeAdded() = testApplication {
         application {
             val repository = FakeTaskRepository()
+            val service = TaskServiceImpl(repository)
             configureSerialization()
-            configureRouting(repository)
+            configureTaskRouting(service)
         }
 
         val client = createClient {

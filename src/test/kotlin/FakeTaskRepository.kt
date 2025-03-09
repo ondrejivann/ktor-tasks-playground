@@ -1,8 +1,8 @@
 package com.example
 
-import com.example.model.Priority
-import com.example.model.Task
-import com.example.model.TaskRepository
+import com.example.domain.model.Priority
+import com.example.domain.model.Task
+import com.example.domain.ports.TaskRepository
 
 class FakeTaskRepository : TaskRepository {
     private val tasks = mutableListOf(

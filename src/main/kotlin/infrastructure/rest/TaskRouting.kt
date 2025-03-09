@@ -1,8 +1,8 @@
-package com.example
+package com.example.infrastructure.rest
 
-import com.example.model.Priority
-import com.example.model.Task
-import com.example.model.TaskRepository
+import com.example.domain.model.Priority
+import com.example.domain.model.Task
+import com.example.domain.ports.TaskService
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
@@ -14,25 +14,15 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Application.configureRouting(
-    repository: TaskRepository,
+fun Application.configureTaskRouting(
+    taskService: TaskService,
 ) {
-    install(StatusPages) {
-        exception<Throwable> { call, cause ->
-            call.respondText(text = "500: $cause" , status = HttpStatusCode.InternalServerError)
-        }
-    }
-
-    install(ContentNegotiation) {
-        json()
-    }
-
     routing {
         staticResources("static", "static")
 
         route("/tasks") {
             get {
-                val tasks = repository.allTasks()
+                val tasks = taskService.allTasks()
                 call.respond(tasks)
             }
 
@@ -42,7 +32,7 @@ fun Application.configureRouting(
                     call.respond(HttpStatusCode.BadRequest)
                     return@get
                 }
-                val task = repository.taskByName(name)
+                val task = taskService.taskByName(name)
                 if (task == null) {
                     call.respond(HttpStatusCode.NotFound)
                     return@get
@@ -58,7 +48,7 @@ fun Application.configureRouting(
                 }
                 try {
                     val priority = Priority.valueOf(priorityAsText)
-                    val tasks = repository.tasksByPriority(priority)
+                    val tasks = taskService.tasksByPriority(priority)
 
 
                     if (tasks.isEmpty()) {
@@ -74,7 +64,7 @@ fun Application.configureRouting(
             post {
                 try {
                     val task = call.receive<Task>()
-                    repository.addTask(task)
+                    taskService.addTask(task)
                     call.respond(HttpStatusCode.NoContent)
                 } catch (ex: IllegalStateException) {
                     call.respond(HttpStatusCode.BadRequest)
@@ -89,7 +79,7 @@ fun Application.configureRouting(
                     call.respond(HttpStatusCode.BadRequest)
                     return@delete
                 }
-                if (repository.removeTask(name)) {
+                if (taskService.removeTask(name)) {
                     call.respond(HttpStatusCode.NoContent)
                 } else {
                     call.respond(HttpStatusCode.NotFound)

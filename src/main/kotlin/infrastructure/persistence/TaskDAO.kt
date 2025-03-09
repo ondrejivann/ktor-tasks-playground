@@ -1,7 +1,7 @@
-package com.example.db
+package com.example.infrastructure.persistence
 
-import com.example.model.Priority
-import com.example.model.Task
+import com.example.domain.model.Priority
+import com.example.domain.model.Task
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
