@@ -1,15 +1,15 @@
 package com.example
 
-import com.example.domain.model.Priority
-import com.example.domain.model.Task
-import com.example.domain.ports.TaskRepository
+import domain.model.Priority
+import domain.model.Task
+import domain.ports.TaskRepository
 
 class FakeTaskRepository : TaskRepository {
     private val tasks = mutableListOf(
-        Task("cleaning", "Clean the house", Priority.Low),
-        Task("gardening", "Mow the lawn", Priority.Medium),
-        Task("shopping", "Buy the groceries", Priority.High),
-        Task("painting", "Paint the fence", Priority.Medium)
+        Task("cleaning", "Clean the house", Priority.LOW),
+        Task("gardening", "Mow the lawn", Priority.MEDIUM),
+        Task("shopping", "Buy the groceries", Priority.HIGH),
+        Task("painting", "Paint the fence", Priority.MEDIUM)
     )
 
     override suspend fun allTasks(): List<Task> = tasks

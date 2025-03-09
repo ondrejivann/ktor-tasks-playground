@@ -1,9 +1,9 @@
 package com.example.application.services
 
-import com.example.domain.model.Priority
-import com.example.domain.model.Task
-import com.example.domain.ports.TaskRepository
-import com.example.domain.ports.TaskService
+import domain.model.Priority
+import domain.model.Task
+import domain.ports.TaskRepository
+import domain.ports.TaskService
 
 class TaskServiceImpl(
     private val repository: TaskRepository

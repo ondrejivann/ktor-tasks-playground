@@ -1,7 +1,7 @@
-package com.example.infrastructure.persistence
+package infrastructure.persistence
 
-import com.example.domain.model.Priority
-import com.example.domain.model.Task
+import domain.model.Priority
+import domain.model.Task
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -30,5 +30,5 @@ suspend fun <T> suspendTransaction(block: Transaction.() -> T): T =
 fun daoToModel(dao: TaskDAO) = Task(
     dao.name,
     dao.description,
-    Priority.valueOf(dao.priority)
+    Priority.valueOf(dao.priority.uppercase())
 )

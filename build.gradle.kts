@@ -32,8 +32,14 @@ dependencies {
     implementation(libs.ktor.server.host.common)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.cors)
+
+    implementation(libs.graphql.kotlin.ktor.server)
+
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.ktor.client.content.negotiation)
+    testImplementation(libs.jayway.jsonpath)
 }

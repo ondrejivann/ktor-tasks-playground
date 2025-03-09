@@ -1,8 +1,8 @@
-package com.example.infrastructure.persistence
+package infrastructure.persistence
 
-import com.example.domain.model.Priority
-import com.example.domain.model.Task
-import com.example.domain.ports.TaskRepository
+import domain.model.Priority
+import domain.model.Task
+import domain.ports.TaskRepository
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 

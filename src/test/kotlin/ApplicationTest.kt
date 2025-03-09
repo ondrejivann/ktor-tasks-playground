@@ -1,17 +1,20 @@
 package com.example
 
 import com.example.application.services.TaskServiceImpl
-import com.example.config.ktor.configureSerialization
-import com.example.domain.model.Priority
-import com.example.domain.model.Task
-import com.example.infrastructure.rest.configureTaskRouting
+import domain.model.Priority
+import domain.model.Task
+import infrastructure.rest.configureRestRoutes
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.routing.*
 import io.ktor.server.testing.*
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 
 class ApplicationTest {
     @Test
@@ -19,8 +22,9 @@ class ApplicationTest {
         application {
             val repository = FakeTaskRepository()
             val service = TaskServiceImpl(repository)
-            configureSerialization()
-            configureTaskRouting(service)
+            routing {
+                configureRestRoutes(service)
+            }
         }
 
         val client = createClient {
@@ -29,7 +33,7 @@ class ApplicationTest {
             }
         }
 
-        val response = client.get("/tasks/byPriority/Medium")
+        val response = client.get("/tasks/byPriority/MEDIUM")
         val results = response.body<List<Task>>()
 
         assertEquals(HttpStatusCode.OK, response.status)
@@ -44,23 +48,18 @@ class ApplicationTest {
         application {
             val repository = FakeTaskRepository()
             val service = TaskServiceImpl(repository)
-            configureSerialization()
-            configureTaskRouting(service)
+            routing {
+                configureRestRoutes(service)
+            }
         }
+
         val response = client.get("/tasks/byPriority/Invalid")
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
     @Test
     fun unusedPriorityProduces404() = testApplication {
-        application {
-            val repository = FakeTaskRepository()
-            val service = TaskServiceImpl(repository)
-            configureSerialization()
-            configureTaskRouting(service)
-        }
-
-        val response = client.get("/tasks/byPriority/Vital")
+        val response = client.get("/tasks/byPriority/VITAL")
         assertEquals(HttpStatusCode.NotFound, response.status)
     }
 
@@ -69,8 +68,9 @@ class ApplicationTest {
         application {
             val repository = FakeTaskRepository()
             val service = TaskServiceImpl(repository)
-            configureSerialization()
-            configureTaskRouting(service)
+            routing {
+                configureRestRoutes(service)
+            }
         }
 
         val client = createClient {
@@ -79,7 +79,7 @@ class ApplicationTest {
             }
         }
 
-        val task = Task("swimming", "Go to the beach", Priority.Low)
+        val task = Task("swimming", "Go to the beach", Priority.LOW)
         val response1 = client.post("/tasks") {
             header(
                 HttpHeaders.ContentType,

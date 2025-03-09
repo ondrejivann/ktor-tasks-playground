@@ -1,9 +1,9 @@
-package com.example.domain.model
+package domain.model
 
 import kotlinx.serialization.Serializable
 
 enum class Priority {
-    Low, Medium, High, Vital
+    LOW, MEDIUM, HIGH, VITAL
 }
 
 @Serializable

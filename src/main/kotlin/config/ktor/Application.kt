@@ -1,8 +1,8 @@
 package com.example.config.ktor
 
 import com.example.application.services.TaskServiceImpl
-import com.example.infrastructure.persistence.TaskRepositoryImpl
-import com.example.infrastructure.rest.configureTaskRouting
+import config.ktor.*
+import infrastructure.persistence.TaskRepositoryImpl
 import io.ktor.server.application.*
 
 fun main(args: Array<String>) {
@@ -13,8 +13,9 @@ fun Application.module() {
     val repository = TaskRepositoryImpl()
     val service = TaskServiceImpl(repository)
 
-    configureTaskRouting(service)
-    configureStatusPages()
-    configureSerialization()
+    configureCORS()
     configureDatabases()
+    configureGraphQL(service)
+    configureRouting(service)
+    configureStatusPages()
 }
