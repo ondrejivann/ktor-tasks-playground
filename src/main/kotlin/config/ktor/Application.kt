@@ -18,4 +18,5 @@ fun Application.module() {
     configureGraphQL(service)
     configureRouting(service)
     configureStatusPages()
+    configureOpenAPI()
 }

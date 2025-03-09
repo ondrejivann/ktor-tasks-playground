@@ -1,7 +1,7 @@
 package infrastructure.rest
 
-import domain.ports.TaskService
 import config.ktor.configureRestSerialization
+import domain.ports.TaskService
 import io.ktor.server.routing.*
 
 fun Route.configureRestRoutes(

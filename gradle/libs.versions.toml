@@ -15,6 +15,9 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor-version" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor-version" }
 
+ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor-version" }
+ktor-server-openapi = { module = "io.ktor:ktor-server-openapi", version.ref = "ktor-version" }
+
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
 
 h2 = { module = "com.h2database:h2", version.ref = "h2-version" }

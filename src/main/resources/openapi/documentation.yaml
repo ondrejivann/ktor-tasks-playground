@@ -1,0 +1,76 @@
+openapi: 3.0.1
+info:
+  title: "Ktor REST API"
+  description: "Dokumentace REST API pro Ktor aplikaci"
+  version: "1.0.0"
+servers:
+  - url: http://localhost:8080
+paths:
+  /tasks:
+    get:
+      summary: "Získání všech úkolů"
+      description: "Vrátí seznam všech existujících úkolů"
+      responses:
+        "200":
+          description: "Úspěšná odpověď"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+    post:
+      summary: "Vytvoření nového úkolu"
+      description: "Přidá nový úkol do databáze"
+      requestBody:
+        description: "Údaje o novém úkolu"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Task"
+      responses:
+        "201":
+          description: "Úkol úspěšně vytvořen"
+  /tasks/{id}:
+    get:
+      summary: "Získání úkolu podle ID"
+      description: "Vrátí konkrétní úkol na základě ID"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID úkolu"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Úspěšná odpověď"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+        "404":
+          description: "Úkol nenalezen"
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Identifikátor úkolu"
+        name:
+          type: string
+          description: "Název úkolu"
+        description:
+          type: string
+          description: "Detailní popis úkolu"
+        priority:
+          type: string
+          description: "Priorita úkolu"
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+            - VITAL
