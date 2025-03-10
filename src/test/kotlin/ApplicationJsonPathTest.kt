@@ -1,6 +1,6 @@
 package com.example
 
-import com.example.application.services.TaskServiceImpl
+import application.services.TaskServiceImpl
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import domain.model.Priority

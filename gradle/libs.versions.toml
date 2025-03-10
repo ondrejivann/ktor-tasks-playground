@@ -8,6 +8,9 @@ logback-version = "1.4.14"
 postgres-version = "42.7.5"
 graphql-version = "8.3.0"
 jsonpath-version = "2.9.0"
+koin-version = "4.0.2"
+koin-annotations-version = "2.0.0"
+ksp-version = "2.0.21-1.0.28"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -41,7 +44,13 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 
 jayway-jsonpath = { module = "com.jayway.jsonpath:json-path", version.ref = "jsonpath-version"}
 
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin-version" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin-version" }
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations-version" }
+koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations-version" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp-version" }

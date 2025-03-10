@@ -5,7 +5,9 @@ import domain.model.Task
 import domain.ports.TaskRepository
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
+import org.koin.core.annotation.Single
 
+@Single
 class TaskRepositoryImpl : TaskRepository {
     override suspend fun allTasks(): List<Task> = suspendTransaction {
         TaskDAO.all().map(::daoToModel)

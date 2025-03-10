@@ -1,10 +1,12 @@
-package com.example.application.services
+package application.services
 
 import domain.model.Priority
 import domain.model.Task
 import domain.ports.TaskRepository
 import domain.ports.TaskService
+import org.koin.core.annotation.Single
 
+@Single
 class TaskServiceImpl(
     private val repository: TaskRepository
 ): TaskService {

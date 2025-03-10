@@ -1,22 +1,25 @@
-package com.example.config.ktor
+package config.ktor
 
-import com.example.application.services.TaskServiceImpl
-import config.ktor.*
-import infrastructure.persistence.TaskRepositoryImpl
 import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.engine.embeddedServer
 
 fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
+    embeddedServer(Netty,
+        configure = {
+            val cliConfig = CommandLineConfig(args)
+            takeFrom(cliConfig.engineConfig)
+            loadCommonConfiguration(cliConfig.rootConfig.environment.config)
+        }).start(wait = true)
 }
 
 fun Application.module() {
-    val repository = TaskRepositoryImpl()
-    val service = TaskServiceImpl(repository)
-
+    configureKoin()
     configureCORS()
     configureDatabases()
-    configureGraphQL(service)
-    configureRouting(service)
+    configureGraphQL()
+    configureRouting()
     configureStatusPages()
     configureOpenAPI()
 }

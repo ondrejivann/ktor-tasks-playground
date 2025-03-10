@@ -1,6 +1,6 @@
 package com.example
 
-import com.example.application.services.TaskServiceImpl
+import application.services.TaskServiceImpl
 import domain.model.Priority
 import domain.model.Task
 import infrastructure.rest.configureRestRoutes

@@ -1,17 +1,19 @@
 package config.ktor
 
-import domain.ports.TaskService
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.federation.directives.ContactDirective
 import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.ktor.GraphQL
-import infrastructure.graphql.TaskQueries
+import domain.ports.TaskService
 import infrastructure.graphql.TaskMutations
+import infrastructure.graphql.TaskQueries
 import io.ktor.server.application.*
+import org.koin.ktor.ext.inject
 
-fun Application.configureGraphQL(
-    taskService: TaskService,
-) {
+fun Application.configureGraphQL() {
+
+    val taskService by inject<TaskService>()
+
     install(GraphQL) {
         schema {
             packages = listOf("infrastructure.graphql")
@@ -28,8 +30,8 @@ fun Application.configureGraphQL(
 
 @ContactDirective(
     name = "My Team Name",
-    url = "https://myteam.slack.com/archives/teams-chat-room-url",
-    description = "send urgent issues to [#oncall](https://yourteam.slack.com/archives/oncall)."
+    url = "url to scheme",
+    description = "This is my dream scheme"
 )
 @GraphQLDescription("My schema description")
 class MySchema : Schema
