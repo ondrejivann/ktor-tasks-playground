@@ -44,6 +44,9 @@ dependencies {
 
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
+
+    implementation(libs.ktor.server.call.logging)
+    implementation(libs.kotlin.logging)
     
     // Koin for Ktor
     implementation(libs.koin.ktor)

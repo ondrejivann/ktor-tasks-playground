@@ -1,9 +1,9 @@
 package config.ktor
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import io.ktor.server.engine.embeddedServer
 
 fun main(args: Array<String>) {
     embeddedServer(Netty,
@@ -14,7 +14,10 @@ fun main(args: Array<String>) {
         }).start(wait = true)
 }
 
+private val logger = KotlinLogging.logger {}
+
 fun Application.module() {
+    logger.info { "Ktor is starting..." }
     configureKoin()
     configureCORS()
     configureDatabases()
@@ -22,4 +25,5 @@ fun Application.module() {
     configureRouting()
     configureStatusPages()
     configureOpenAPI()
+    configureCallLogging()
 }

@@ -11,6 +11,7 @@ jsonpath-version = "2.9.0"
 koin-version = "4.0.2"
 koin-annotations-version = "2.0.0"
 ksp-version = "2.0.21-1.0.28"
+kotlin-logging-version = "7.0.5"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -33,6 +34,9 @@ ktor-server-host-common = { module = "io.ktor:ktor-server-host-common", version.
 ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor-version" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor-version" }
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor-version"}
+ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor-version"}
+
+kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging-version" }
 
 graphql-kotlin-ktor-server = { module = "com.expediagroup:graphql-kotlin-ktor-server", version.ref = "graphql-version" }
 
