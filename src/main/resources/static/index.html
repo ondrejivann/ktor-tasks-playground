@@ -1,7 +1,71 @@
-<html>
+<!DOCTYPE html>
+<html lang="cs" class="light">
 <head>
-    <title>A Simple SPA For Tasks</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            100: '#1a1a1a',
+                            200: '#2d2d2d',
+                            300: '#404040',
+                            400: '#525252',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Dark mode transitions */
+        .dark .dark\:bg-dark-100 { transition: background-color 0.3s ease; }
+        .dark .dark\:bg-dark-200 { transition: background-color 0.3s ease; }
+        .dark .dark\:text-gray-100 { transition: color 0.3s ease; }
+    </style>
     <script type="application/javascript">
+        // Theme management
+        function initTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            setTheme(theme);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme) {
+            const html = document.documentElement;
+            const themeToggleIcon = document.getElementById('themeToggleIcon');
+            
+            if (theme === 'dark') {
+                html.classList.add('dark');
+                themeToggleIcon.innerHTML = '🌞';
+                themeToggleIcon.title = 'Přepnout na světlý režim';
+            } else {
+                html.classList.remove('dark');
+                themeToggleIcon.innerHTML = '🌙';
+                themeToggleIcon.title = 'Přepnout na tmavý režim';
+            }
+            
+            localStorage.setItem('theme', theme);
+        }
+
         function displayAllTasks() {
             clearTasksTable();
             fetchAllTasks().then(displayTasks)
@@ -14,17 +78,34 @@
         }
 
         function displayTask(name) {
-            fetchTaskWithName(name).then(t =>
-                taskDisplay().innerHTML
-                    = `${t.priority} priority task ${t.name} with description "${t.description}"`
-            )
+            fetchTaskWithName(name).then(t => {
+                const priorityColor = getPriorityColor(t.priority);
+                taskDisplay().innerHTML = `
+                    <span class="font-medium ${priorityColor}">${t.priority}</span> prioritní úkol 
+                    <span class="font-bold">${t.name}</span> 
+                    <span class="text-gray-600">s popisem</span> 
+                    <span class="italic">"${t.description}"</span>
+                `;
+            })
+        }
+
+        function getPriorityColor(priority) {
+            const colors = {
+                'LOW': 'text-blue-600',
+                'MEDIUM': 'text-yellow-600',
+                'HIGH': 'text-orange-600',
+                'VITAL': 'text-red-600'
+            };
+            return colors[priority] || 'text-gray-600';
         }
 
         function deleteTask(name) {
-            deleteTaskWithName(name).then(() => {
-                clearTaskDisplay();
-                displayAllTasks();
-            })
+            if (confirm(`Opravdu chcete smazat úkol "${name}"?`)) {
+                deleteTaskWithName(name).then(() => {
+                    clearTaskDisplay();
+                    displayAllTasks();
+                })
+            }
         }
 
         function deleteTaskWithName(name) {
@@ -33,7 +114,18 @@
 
         function addNewTask() {
             const task = buildTaskFromForm();
-            sendPOST("/tasks", task).then(displayAllTasks);
+            if (!task.name || !task.description) {
+                alert('Prosím vyplňte název a popis úkolu');
+                return;
+            }
+            sendPOST("/tasks", task).then(() => {
+                displayAllTasks();
+                clearForm();
+            });
+        }
+
+        function clearForm() {
+            document.addTaskForm.reset();
         }
 
         function buildTaskFromForm() {
@@ -103,11 +195,21 @@
         }
 
         function clearTaskDisplay() {
-            taskDisplay().innerText = "None";
+            taskDisplay().innerHTML = '<span class="text-gray-500 dark:text-gray-400">Žádný úkol není vybrán</span>';
         }
 
         function displayTasks(tasks) {
             const tasksTableBody = tasksTable()
+            if (tasks.length === 0) {
+                tasksTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                            Žádné úkoly k zobrazení
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
             tasks.forEach(task => {
                 const newRow = taskRow(task);
                 tasksTableBody.appendChild(newRow);
@@ -115,9 +217,10 @@
         }
 
         function taskRow(task) {
+            const priorityColor = getPriorityColor(task.priority);
             return tr([
-                td(task.name),
-                td(task.priority),
+                td(task.name, 'font-medium'),
+                td(`<span class="px-2 py-1 rounded-full text-sm ${priorityColor}">${task.priority}</span>`, true),
                 td(viewLink(task.name)),
                 td(deleteLink(task.name)),
             ]);
@@ -125,13 +228,17 @@
 
         function tr(children) {
             const node = document.createElement("tr");
+            node.className = "hover:bg-gray-50 dark:hover:bg-dark-300 transition-colors";
             children.forEach(child => node.appendChild(child));
             return node;
         }
 
-        function td(content) {
+        function td(content, isHTML = false) {
             const node = document.createElement("td");
-            if (content instanceof Element) {
+            node.className = "px-6 py-4 text-gray-900 dark:text-gray-100";
+            if (isHTML) {
+                node.innerHTML = content;
+            } else if (content instanceof Element) {
                 node.appendChild(content)
             } else {
                 node.appendChild(document.createTextNode(content));
@@ -144,7 +251,8 @@
             node.setAttribute(
                 "href", `javascript:displayTask("${taskName}")`
             )
-            node.appendChild(document.createTextNode("view"));
+            node.className = "text-blue-600 hover:text-blue-800 transition-colors";
+            node.appendChild(document.createTextNode("zobrazit"));
             return node;
         }
 
@@ -153,58 +261,112 @@
             node.setAttribute(
                 "href", `javascript:deleteTask("${taskName}")`
             )
-            node.appendChild(document.createTextNode("delete"));
+            node.className = "text-red-600 hover:text-red-800 transition-colors";
+            node.appendChild(document.createTextNode("smazat"));
             return node;
         }
     </script>
 </head>
-<body onload="displayAllTasks()">
-<h1>Task Manager Client</h1>
-<form action="javascript:displayAllTasks()">
-    <span>View all the tasks</span>
-    <input type="submit" value="Go">
-</form>
-<form name="priorityForm" action="javascript:displayTasksWithPriority()">
-    <span>View tasks with priority</span>
-    <select name="priority">
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-        <option value="VITAL">Vital</option>
-    </select>
-    <input type="submit" value="Go">
-</form>
-<form name="addTaskForm" action="javascript:addNewTask()">
-    <span>Create new task with</span>
-    <label for="newTaskName">name</label>
-    <input type="text" id="newTaskName" name="newTaskName" size="10">
-    <label for="newTaskDescription">description</label>
-    <input type="text" id="newTaskDescription" name="newTaskDescription" size="20">
-    <label for="newTaskPriority">priority</label>
-    <select id="newTaskPriority" name="newTaskPriority">
-        <option value="LOW">Low</option>
-        <option value="MEDIUM">Medium</option>
-        <option value="HIGH">High</option>
-        <option value="VITAL">Vital</option>
-    </select>
-    <input type="submit" value="Go">
-</form>
-<hr>
-<div>
-    Current task is <em id="currentTaskDisplay">None</em>
-</div>
-<hr>
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Priority</th>
-        <th></th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody id="tasksTableBody">
-    </tbody>
-</table>
+<body class="bg-gray-50 dark:bg-dark-100 min-h-screen transition-colors" onload="initTheme(); displayAllTasks()">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Správce úkolů</h1>
+            <button 
+                onclick="toggleTheme()" 
+                class="p-2 text-2xl bg-gray-100 dark:bg-dark-200 rounded-full hover:bg-gray-200 dark:hover:bg-dark-300 transition-colors"
+                title="Přepnout na tmavý režim"
+            >
+                <span id="themeToggleIcon">🌙</span>
+            </button>
+        </div>
+        
+        <div class="bg-white dark:bg-dark-200 rounded-lg shadow-sm p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Zobrazení všech úkolů -->
+                <form action="javascript:displayAllTasks()" class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-700 dark:text-gray-300">Zobrazit všechny úkoly</span>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Zobrazit
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Filtrování podle priority -->
+                <form name="priorityForm" action="javascript:displayTasksWithPriority()" class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-700 dark:text-gray-300">Filtrovat podle priority</span>
+                        <select name="priority" class="rounded-md border-gray-300 dark:border-dark-300 dark:bg-dark-300 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="LOW">Nízká</option>
+                            <option value="MEDIUM">Střední</option>
+                            <option value="HIGH">Vysoká</option>
+                            <option value="VITAL">Kritická</option>
+                        </select>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                            Filtrovat
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Formulář pro přidání nového úkolu -->
+        <div class="bg-white dark:bg-dark-200 rounded-lg shadow-sm p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Přidat nový úkol</h2>
+            <form name="addTaskForm" action="javascript:addNewTask()" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="newTaskName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Název</label>
+                        <input type="text" id="newTaskName" name="newTaskName" 
+                               class="mt-1 block w-full rounded-md border-gray-300 dark:border-dark-300 dark:bg-dark-300 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="newTaskDescription" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Popis</label>
+                        <input type="text" id="newTaskDescription" name="newTaskDescription" 
+                               class="mt-1 block w-full rounded-md border-gray-300 dark:border-dark-300 dark:bg-dark-300 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="newTaskPriority" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priorita</label>
+                        <select id="newTaskPriority" name="newTaskPriority" 
+                                class="mt-1 block w-full rounded-md border-gray-300 dark:border-dark-300 dark:bg-dark-300 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="LOW">Nízká</option>
+                            <option value="MEDIUM">Střední</option>
+                            <option value="HIGH">Vysoká</option>
+                            <option value="VITAL">Kritická</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors">
+                        Přidat úkol
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Zobrazení aktuálního úkolu -->
+        <div class="bg-white dark:bg-dark-200 rounded-lg shadow-sm p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Aktuální úkol</h2>
+            <div class="text-lg text-gray-800 dark:text-gray-200" id="currentTaskDisplay">
+                <span class="text-gray-500 dark:text-gray-400">Žádný úkol není vybrán</span>
+            </div>
+        </div>
+
+        <!-- Tabulka úkolů -->
+        <div class="bg-white dark:bg-dark-200 rounded-lg shadow-sm overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-dark-300">
+                <thead class="bg-gray-50 dark:bg-dark-300">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Název</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priorita</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akce</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTableBody" class="bg-white dark:bg-dark-200 divide-y divide-gray-200 dark:divide-dark-300">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
