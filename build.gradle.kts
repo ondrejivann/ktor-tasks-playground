@@ -54,6 +54,12 @@ dependencies {
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp.compiler)
 
+    // Flyway migrations
+    implementation(libs.flywaydb.flyway.core)
+    implementation(libs.flywaydb.flyway.database.postgresql)
+    // Hikari pool
+    implementation(libs.hikari.pool)
+
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.ktor.client.content.negotiation)

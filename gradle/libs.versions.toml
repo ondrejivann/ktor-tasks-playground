@@ -12,6 +12,8 @@ koin-version = "4.0.2"
 koin-annotations-version = "2.0.0"
 ksp-version = "2.0.21-1.0.28"
 kotlin-logging-version = "7.0.5"
+flyway-version = "11.4.0"
+hikari-version = "6.2.1"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -52,6 +54,11 @@ koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin-version" 
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin-version" }
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations-version" }
 koin-ksp-compiler = { module = "io.insert-koin:koin-ksp-compiler", version.ref = "koin-annotations-version" }
+
+flywaydb-flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway-version" }
+flywaydb-flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway-version" }
+
+hikari-pool = { module = "com.zaxxer:HikariCP", version.ref = "hikari-version" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
