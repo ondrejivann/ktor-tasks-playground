@@ -27,9 +27,14 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.postgresql)
     implementation(libs.h2)
+
+    // Exposed
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.dao)
+    implementation(libs.exposed.time)
+
+
     implementation(libs.ktor.server.host.common)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.netty)
@@ -53,6 +58,12 @@ dependencies {
     implementation(libs.koin.logger.slf4j)
     implementation(libs.koin.annotations)
     ksp(libs.koin.ksp.compiler)
+
+    // Flyway migrations
+    implementation(libs.flywaydb.flyway.core)
+    implementation(libs.flywaydb.flyway.database.postgresql)
+    // Hikari pool
+    implementation(libs.hikari.pool)
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)

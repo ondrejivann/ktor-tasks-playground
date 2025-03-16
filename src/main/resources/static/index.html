@@ -34,6 +34,22 @@
         .dark .dark\:bg-dark-100 { transition: background-color 0.3s ease; }
         .dark .dark\:bg-dark-200 { transition: background-color 0.3s ease; }
         .dark .dark\:text-gray-100 { transition: color 0.3s ease; }
+        
+        input[type="text"] {
+            height: 3rem !important;
+            padding: 0.5rem 0.75rem;
+        }
+
+        select {
+            height: 3rem !important;
+            padding: 0.5rem !important;
+            background-position: right 0.75rem center !important;
+        }
+
+        td select {
+            min-width: 180px;
+            padding: 0.5rem !important;
+        }
     </style>
     <script type="application/javascript">
         // Theme management
@@ -80,13 +96,55 @@
         function displayTask(name) {
             fetchTaskWithName(name).then(t => {
                 const priorityColor = getPriorityColor(t.priority);
+                const statusColor = getStatusColor(t.status?.code || 'pending');
+                const createdAt = formatDate(t.createdAt);
+                const updatedAt = formatDate(t.updatedAt);
+                
                 taskDisplay().innerHTML = `
-                    <span class="font-medium ${priorityColor}">${t.priority}</span> prioritní úkol 
-                    <span class="font-bold">${t.name}</span> 
-                    <span class="text-gray-600">s popisem</span> 
-                    <span class="italic">"${t.description}"</span>
+                    <div class="space-y-3">
+                        <div>
+                            <span class="font-medium ${priorityColor}">${t.priority}</span> prioritní úkol 
+                            <span class="font-bold">${t.name}</span>
+                        </div>
+                        <div class="text-gray-600 dark:text-gray-400">
+                            <span class="font-medium">Popis:</span> 
+                            <span class="italic">"${t.description}"</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                            <span class="px-2 py-1 rounded-full text-sm ${statusColor}">
+                                ${t.status?.name || 'Čeká na zpracování'}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            <div>Vytvořeno: ${createdAt}</div>
+                            <div>Aktualizováno: ${updatedAt}</div>
+                        </div>
+                    </div>
                 `;
             })
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'neznámé datum';
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('cs-CZ', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
+
+        function getStatusColor(statusCode) {
+            const colors = {
+                'pending': 'bg-yellow-100 text-yellow-800',
+                'in_progress': 'bg-blue-100 text-blue-800',
+                'completed': 'bg-green-100 text-green-800',
+                'cancelled': 'bg-red-100 text-red-800'
+            };
+            return colors[statusCode] || 'bg-gray-100 text-gray-800';
         }
 
         function getPriorityColor(priority) {
@@ -106,6 +164,50 @@
                     displayAllTasks();
                 })
             }
+        }
+
+        function updateTaskStatus(taskName, newStatusCode) {
+            return fetch(`/tasks/${taskName}/status/${newStatusCode}`, {
+                method: 'PUT'
+            }).then(response => {
+                if (response.ok) {
+                    // Znovu načíst tasky bez změny pořadí
+                    fetchAllTasks().then(displayTasks);
+                    
+                    // Pokud je vybraný task se změněným statusem, aktualizujeme detail
+                    if (taskDisplay().innerText.includes(taskName)) {
+                        displayTask(taskName);
+                    }
+                } else {
+                    alert('Nepodařilo se změnit status úkolu');
+                }
+            }).catch(err => {
+                console.error('Chyba při změně statusu:', err);
+                alert('Došlo k chybě při změně statusu úkolu');
+            });
+        }
+
+        function statusDropdown(task) {
+            const select = document.createElement('select');
+            select.className = 'rounded-md text-sm border-gray-300 dark:border-dark-300 dark:bg-dark-300 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500';
+            select.onchange = (e) => updateTaskStatus(task.name, e.target.value);
+            
+            const statuses = [
+                { code: 'pending', name: 'Čeká na zpracování' },
+                { code: 'in_progress', name: 'V řešení' },
+                { code: 'completed', name: 'Dokončeno' },
+                { code: 'cancelled', name: 'Zrušeno' }
+            ];
+
+            statuses.forEach(status => {
+                const option = document.createElement('option');
+                option.value = status.code;
+                option.text = status.name;
+                option.selected = task.status?.code === status.code;
+                select.appendChild(option);
+            });
+
+            return select;
         }
 
         function deleteTaskWithName(name) {
@@ -203,13 +305,18 @@
             if (tasks.length === 0) {
                 tasksTableBody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <td colspan="5" class="text-center py-4 text-gray-500 dark:text-gray-400">
                             Žádné úkoly k zobrazení
                         </td>
                     </tr>
                 `;
                 return;
             }
+            
+            // Vyčistíme existující obsah
+            tasksTableBody.innerHTML = '';
+            
+            // Zobrazíme úkoly bez jakéhokoliv řazení
             tasks.forEach(task => {
                 const newRow = taskRow(task);
                 tasksTableBody.appendChild(newRow);
@@ -218,12 +325,25 @@
 
         function taskRow(task) {
             const priorityColor = getPriorityColor(task.priority);
+            
             return tr([
                 td(task.name, 'font-medium'),
                 td(`<span class="px-2 py-1 rounded-full text-sm ${priorityColor}">${task.priority}</span>`, true),
-                td(viewLink(task.name)),
-                td(deleteLink(task.name)),
+                td(statusDropdown(task)), // Status dropdown menu
+                td(formatDate(task.createdAt)), // Datum vytvoření
+                td(actionLinks(task.name)) // Akce
             ]);
+        }
+        
+        function actionLinks(taskName) {
+            const container = document.createElement('div');
+            container.className = 'flex space-x-2';
+            
+            container.appendChild(viewLink(taskName));
+            container.appendChild(document.createTextNode(' | '));
+            container.appendChild(deleteLink(taskName));
+            
+            return container;
         }
 
         function tr(children) {
@@ -359,8 +479,9 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Název</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Priorita</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vytvořeno</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Akce</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"></th>
                     </tr>
                 </thead>
                 <tbody id="tasksTableBody" class="bg-white dark:bg-dark-200 divide-y divide-gray-200 dark:divide-dark-300">
