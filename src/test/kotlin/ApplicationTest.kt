@@ -3,7 +3,7 @@ package com.example
 import application.services.TaskServiceImpl
 import domain.model.Priority
 import domain.model.Task
-import infrastructure.rest.configureRestRoutes
+import infrastructure.rest.config.configureRestRoutes
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*

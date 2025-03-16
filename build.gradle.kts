@@ -27,9 +27,14 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.postgresql)
     implementation(libs.h2)
+
+    // Exposed
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
     implementation(libs.exposed.dao)
+    implementation(libs.exposed.time)
+
+
     implementation(libs.ktor.server.host.common)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.netty)

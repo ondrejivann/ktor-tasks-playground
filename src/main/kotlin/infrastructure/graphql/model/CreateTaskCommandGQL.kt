@@ -1,12 +1,11 @@
 package infrastructure.graphql.model
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import domain.model.Priority
 
-@GraphQLDescription("GraphQL Task model")
-data class TaskGQL(
-    val id: Int,
+@GraphQLDescription("Creation of Task Model")
+data class CreateTaskCommandGQL(
     val name: String,
     val description: String,
-    val priority: PriorityGQL,
-    val status: TaskStatusGQL,
+    val priority: Priority
 )

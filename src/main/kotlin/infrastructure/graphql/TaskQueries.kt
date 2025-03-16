@@ -1,11 +1,13 @@
 package infrastructure.graphql
 
+import com.expediagroup.graphql.server.operations.Query
 import domain.model.Priority
 import domain.model.Task
+import domain.model.TaskStatus
 import domain.ports.TaskService
-import com.expediagroup.graphql.server.operations.Query
 import infrastructure.graphql.model.PriorityGQL
 import infrastructure.graphql.model.TaskGQL
+import infrastructure.graphql.model.TaskStatusGQL
 
 class TaskQueries(
     private val taskService: TaskService,
@@ -18,7 +20,13 @@ class TaskQueries(
     }
 
     private fun Task.toGQL(): TaskGQL =
-        TaskGQL(name, description, priority.toGQL())
+        TaskGQL(
+            id = id,
+            name = name,
+            description = description,
+            priority = priority.toGQL(),
+            status = status.toGQL(),
+        )
 
     private fun Priority.toGQL(): PriorityGQL =
         when (this) {
@@ -27,4 +35,11 @@ class TaskQueries(
             Priority.HIGH -> PriorityGQL.HIGH
             Priority.VITAL -> PriorityGQL.VITAL
         }
+
+    private fun TaskStatus.toGQL() = TaskStatusGQL(
+        id = id,
+        code = code,
+        name = name,
+        description = description,
+    )
 }
