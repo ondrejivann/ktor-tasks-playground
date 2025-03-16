@@ -1,3 +1,4 @@
+-- Vytvoření tabulky úkolů
 CREATE TABLE tasks (
                        id SERIAL PRIMARY KEY,
                        name VARCHAR(128) NOT NULL,
@@ -9,6 +10,7 @@ CREATE TABLE tasks (
                        CONSTRAINT tasks_name_unique UNIQUE (name)
 );
 
+-- Trigger pro automatickou aktualizaci pole updated_at
 -- Trigger pro automatickou aktualizaci updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS $$
