@@ -1,15 +1,22 @@
 openapi: 3.0.1
 info:
-  title: "Ktor REST API"
-  description: "Dokumentace REST API pro Ktor aplikaci"
+  title: "Ktor Task Management API"
+  description: "API pro správu úkolů v Ktor aplikaci"
   version: "1.0.0"
 servers:
   - url: http://localhost:8080
+    description: "Vývojový server"
+tags:
+  - name: "Úkoly"
+    description: "Operace spojené se správou úkolů"
 paths:
   /tasks:
     get:
+      tags:
+        - "Úkoly"
       summary: "Získání všech úkolů"
       description: "Vrátí seznam všech existujících úkolů"
+      operationId: "getAllTasks"
       responses:
         "200":
           description: "Úspěšná odpověď"
@@ -19,30 +26,62 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Task"
+              example:
+                - name: "Implementace REST API"
+                  description: "Vytvoření endpointů pro správu úkolů"
+                  priority: "HIGH"
+                  status: "IN_PROGRESS"
+                - name: "Optimalizace databáze"
+                  description: "Vylepšení databázových dotazů"
+                  priority: "MEDIUM"
+                  status: "PENDING"
+                - name: "Psaní dokumentace"
+                  description: "Vytvoření uživatelské příručky"
+                  priority: "LOW"
+                  status: "COMPLETED"
     post:
+      tags:
+        - "Úkoly"
       summary: "Vytvoření nového úkolu"
       description: "Přidá nový úkol do databáze"
+      operationId: "createTask"
       requestBody:
         description: "Údaje o novém úkolu"
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Task"
+              $ref: "#/components/schemas/CreateTaskCommand"
+            example:
+              name: "Nasazení aplikace"
+              description: "Deployment na produkční server"
+              priority: "VITAL"
       responses:
-        "201":
+        "204":
           description: "Úkol úspěšně vytvořen"
-  /tasks/{id}:
+        "400":
+          description: "Neplatná data úkolu"
+          content:
+            application/json:
+              example:
+                error: "Neplatná data pro vytvoření úkolu"
+                details: "Pole 'name' je povinné"
+
+  /tasks/byName/{taskName}:
     get:
-      summary: "Získání úkolu podle ID"
-      description: "Vrátí konkrétní úkol na základě ID"
+      tags:
+        - "Úkoly"
+      summary: "Získání úkolu podle názvu"
+      description: "Vrátí konkrétní úkol na základě jeho názvu"
+      operationId: "getTaskByName"
       parameters:
-        - name: id
+        - name: taskName
           in: path
           required: true
-          description: "ID úkolu"
+          description: "Název úkolu"
           schema:
-            type: integer
+            type: string
+          example: "Implementace REST API"
       responses:
         "200":
           description: "Úspěšná odpověď"
@@ -50,22 +89,161 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Task"
+              example:
+                name: "Implementace REST API"
+                description: "Vytvoření endpointů pro správu úkolů"
+                priority: "HIGH"
+                status: "IN_PROGRESS"
+        "400":
+          description: "Chybějící nebo neplatný název úkolu"
+          content:
+            application/json:
+              example:
+                error: "Chybějící parametr"
+                details: "Parametr 'taskName' je povinný"
         "404":
           description: "Úkol nenalezen"
+          content:
+            application/json:
+              example:
+                error: "Úkol nenalezen"
+                details: "Úkol s názvem 'Implementace REST API' nebyl nalezen"
+
+  /tasks/byPriority/{priority}:
+    get:
+      tags:
+        - "Úkoly"
+      summary: "Získání úkolů podle priority"
+      description: "Vrátí seznam úkolů filtrovaných podle priority"
+      operationId: "getTasksByPriority"
+      parameters:
+        - name: priority
+          in: path
+          required: true
+          description: "Priorita úkolu (LOW, MEDIUM, HIGH, VITAL)"
+          schema:
+            type: string
+            enum: [LOW, MEDIUM, HIGH, VITAL]
+          example: "HIGH"
+      responses:
+        "200":
+          description: "Úspěšná odpověď"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+              example:
+                - name: "Implementace REST API"
+                  description: "Vytvoření endpointů pro správu úkolů"
+                  priority: "HIGH"
+                  status: "IN_PROGRESS"
+                - name: "Implementace autentizace"
+                  description: "Přidání JWT autentizace"
+                  priority: "HIGH"
+                  status: "PENDING"
+        "400":
+          description: "Neplatná hodnota priority"
+          content:
+            application/json:
+              example:
+                error: "Neplatná hodnota"
+                details: "Parametr 'priority' musí být jedna z hodnot: LOW, MEDIUM, HIGH, VITAL"
+        "404":
+          description: "Žádné úkoly s danou prioritou nenalezeny"
+          content:
+            application/json:
+              example:
+                error: "Nenalezeno"
+                details: "Nebyly nalezeny žádné úkoly s prioritou 'HIGH'"
+
+  /tasks/{taskName}/status/{statusCode}:
+    put:
+      tags:
+        - "Úkoly"
+      summary: "Aktualizace stavu úkolu"
+      description: "Aktualizuje stav existujícího úkolu podle jeho názvu"
+      operationId: "updateTaskStatus"
+      parameters:
+        - name: taskName
+          in: path
+          required: true
+          description: "Název úkolu"
+          schema:
+            type: string
+          example: "Implementace REST API"
+        - name: statusCode
+          in: path
+          required: true
+          description: "Kód nového stavu úkolu"
+          schema:
+            type: string
+          example: "COMPLETED"
+      responses:
+        "204":
+          description: "Stav úkolu úspěšně aktualizován"
+        "400":
+          description: "Neplatný název úkolu nebo kód stavu"
+          content:
+            application/json:
+              example:
+                error: "Neplatný požadavek"
+                details: "Neplatný kód stavu 'INVALID_STATUS'"
+        "404":
+          description: "Úkol nenalezen"
+          content:
+            application/json:
+              example:
+                error: "Úkol nenalezen"
+                details: "Úkol s názvem 'Neexistující úkol' nebyl nalezen"
+
+  /tasks/{taskName}:
+    delete:
+      tags:
+        - "Úkoly"
+      summary: "Odstranění úkolu"
+      description: "Odstraní úkol podle názvu"
+      operationId: "deleteTask"
+      parameters:
+        - name: taskName
+          in: path
+          required: true
+          description: "Název úkolu k odstranění"
+          schema:
+            type: string
+          example: "Psaní dokumentace"
+      responses:
+        "204":
+          description: "Úkol úspěšně odstraněn"
+        "400":
+          description: "Neplatný název úkolu"
+          content:
+            application/json:
+              example:
+                error: "Neplatný požadavek"
+                details: "Název úkolu nemůže být prázdný"
+        "404":
+          description: "Úkol nenalezen"
+          content:
+            application/json:
+              example:
+                error: "Úkol nenalezen"
+                details: "Úkol s názvem 'Neexistující úkol' nebyl nalezen"
+
 components:
   schemas:
     Task:
       type: object
       properties:
-        id:
-          type: integer
-          description: "Identifikátor úkolu"
         name:
           type: string
           description: "Název úkolu"
+          example: "Testování API"
         description:
           type: string
           description: "Detailní popis úkolu"
+          example: "Kompletní testování všech API endpointů"
         priority:
           type: string
           description: "Priorita úkolu"
@@ -74,3 +252,37 @@ components:
             - MEDIUM
             - HIGH
             - VITAL
+          example: "MEDIUM"
+        status:
+          type: string
+          description: "Aktuální stav úkolu"
+          example: "PENDING"
+          enum:
+            - PENDING
+            - IN_PROGRESS
+            - COMPLETED
+            - CANCELLED
+
+    CreateTaskCommand:
+      type: object
+      required:
+        - name
+        - priority
+      properties:
+        name:
+          type: string
+          description: "Název úkolu"
+          example: "Revize kódu"
+        description:
+          type: string
+          description: "Detailní popis úkolu"
+          example: "Provést revizi kódu a identifikovat potenciální problémy"
+        priority:
+          type: string
+          description: "Priorita úkolu"
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+            - VITAL
+          example: "MEDIUM"
