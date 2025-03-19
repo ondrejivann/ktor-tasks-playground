@@ -34,3 +34,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Swagger ###
+.swagger-codegen/
+.swagger-codegen-ignore
+/docs/index.html
