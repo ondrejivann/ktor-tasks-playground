@@ -9,10 +9,12 @@ import infrastructure.graphql.model.CreateTaskCommandGQL
 import infrastructure.graphql.model.PriorityGQL
 import infrastructure.graphql.model.TaskOperationResultGQL
 import infrastructure.graphql.model.TaskStatusUpdateResultGQL
+import org.koin.core.annotation.Single
 
+@Single
 class TaskMutations(
     private val taskService: TaskService,
-) : Mutation {
+) {
     suspend fun addTask(input: CreateTaskCommandGQL): TaskOperationResultGQL {
         return try {
             taskService.addTask(input.toDomain())
