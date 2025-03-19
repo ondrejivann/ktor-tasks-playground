@@ -19,6 +19,17 @@ class TaskQueries(
         return task.toGQL()
     }
 
+    suspend fun tasksByPriority(priority: PriorityGQL): List<TaskGQL> {
+        val domainPriority = when (priority) {
+            PriorityGQL.LOW -> Priority.LOW
+            PriorityGQL.MEDIUM -> Priority.MEDIUM
+            PriorityGQL.HIGH -> Priority.HIGH
+            PriorityGQL.VITAL -> Priority.VITAL
+        }
+
+        return taskService.tasksByPriority(domainPriority).map { it.toGQL() }
+    }
+
     private fun Task.toGQL(): TaskGQL =
         TaskGQL(
             id = id,
