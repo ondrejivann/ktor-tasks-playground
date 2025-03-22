@@ -11,6 +11,7 @@ Kompletní průvodce technologiemi a architekturou použitými v projektu.
 - [Dependency Injection](#dependency-injection)
 - [Logování](#logování)
 - [Databáze](#databáze)
+- [Auth](#jwt-autentizace-s-ktor-auth-pluginem-kompletní-přehled)
 
 ## Architektura
 
@@ -439,7 +440,164 @@ val dataSource = HikariDataSource(config)
 - Nastavitelné parametry (pool size, timeout...)
 - Zdravé výchozí hodnoty
 
+## JWT autentizace s Ktor auth pluginem: Kompletní přehled
+
+### Co je JWT (JSON Web Token)
+
+JWT je otevřený standard (RFC 7519) pro bezpečný přenos informací mezi stranami jako JSON objekt. Tyto informace mohou být ověřeny a důvěryhodné, protože jsou digitálně podepsané. JWTs mohou být podepsány pomocí tajného klíče (s algoritmem HMAC) nebo pomocí veřejného/soukromého klíčového páru (RSA nebo ECDSA).
+
+#### Struktura JWT tokenu
+
+JWT token se skládá ze tří částí oddělených tečkami:
+
+  ```
+  header.payload.signature
+  ```
+
+1. **Header** - typicky obsahuje typ tokenu (JWT) a použitý algoritmus podpisu (např. HMAC SHA256)
+2. **Payload** - obsahuje tvrzení ("claims"), což jsou informace o uživateli a metadata
+3. **Signature** - zajišťuje integritu tokenu a ověřuje, že odesílatel je skutečně ten, za koho se vydává
+
+Každá část je Base64URL-encoded, což vytváří URL-bezpečný řetězec, který lze snadno přenášet v HTTP hlavičce.
+
+### Jak funguje JWT autentizace v Ktor
+
+Ktor poskytuje plugin `ktor-auth-jwt`, který usnadňuje implementaci JWT autentizace:
+
+1. **Server vydá JWT token** při úspěšném přihlášení uživatele
+2. **Klient ukládá token** (typicky v localStorage, sessionStorage nebo bezpečném úložišti)
+3. **Klient zasílá token** s každým požadavkem (obvykle v Authorization hlavičce)
+4. **Server ověřuje token** při každém požadavku na chráněné zdroje
+5. **Server dekóduje token** pro získání informací o uživateli
+
+### Typický flow autentizace s JWT
+
+1. **Registrace uživatele**:
+  - Uživatel poskytne přihlašovací údaje (email, heslo, atd.)
+  - Server uloží hash hesla a další údaje o uživateli do databáze
+  - Server může ihned vydat JWT token nebo požádat o přihlášení
+
+2. **Přihlášení uživatele**:
+  - Uživatel zadá přihlašovací údaje
+  - Server ověří údaje proti databázi
+  - Při úspěchu server vygeneruje JWT token obsahující identifikátor uživatele, role, a další relevantní data
+  - Server pošle token zpět klientovi
+
+3. **Autentizované požadavky**:
+  - Klient připojí token k požadavku v hlavičce Authorization: Bearer {token}
+  - Server ověří podpis tokenu a zkontroluje jeho platnost
+  - Server zpracuje požadavek, pokud je token platný
+
+4. **Obnovení tokenu**:
+  - JWT tokeny mají typicky krátkou životnost (15-60 minut)
+  - Pro dlouhodobé přihlášení se používá refresh token mechanismus
+  - Klient získá nový JWT token pomocí refresh tokenu bez nutnosti opětovného zadání hesla
+
+### Co budete potřebovat pro implementaci
+
+#### Na straně serveru:
+
+1. **JWT knihovna**: Ktor poskytuje `ktor-auth-jwt` plugin, který integruje knihovnu `java-jwt`
+2. **Bezpečné úložiště pro tajný klíč**: Pro podpis/ověření JWT tokenů
+3. **Uživatelský model a repository**: Pro správu uživatelů a jejich rolí
+4. **Autentizační service**: Logika pro validaci přihlašovacích údajů a generování tokenů
+5. **Autorizační mechanismus**: Pro kontrolu oprávnění uživatele k určitým operacím
+
+#### Na straně klienta:
+
+1. **Mechanismus pro ukládání JWT**:
+  - Pro web: localStorage/sessionStorage nebo HttpOnly cookies
+  - Pro mobilní aplikace: Secure storage (Keychain na iOS, KeyStore na Androidu)
+2. **Interceptor/Middleware**: Pro automatické připojení JWT tokenu ke všem požadavkům
+3. **Mechanismus pro refresh tokenů**: Detekce vypršení tokenu a jeho obnovení
+4. **UI pro přihlášení/registraci**: Formuláře pro získání přihlašovacích údajů
+
+### Bezpečnostní aspekty JWT
+
+1. **Tajný klíč**: Musí být dostatečně dlouhý a bezpečně uložený
+2. **Expirace tokenů**: Krátká doba platnosti (15-60 minut) minimalizuje škody při zcizení tokenu
+3. **Obsah tokenu**: Neukládejte citlivé informace, pouze identifikátory a základní metadata
+4. **Algoritmy podpisu**: Preferujte silné algoritmy (RS256, ES256) před jednodušším HS256
+5. **Token invalidace**: JWT nemá zabudovaný mechanismus pro okamžité zneplatnění, řešení:
+  - Krátká expirace + refresh token
+  - Blacklist pro kompromitované tokeny
+  - Redis nebo jiný in-memory store pro blacklist tokenů
+
+### Scénáře a principy JWT autentizace
+
+#### 1. Přihlášení uživatele
+
+- Uživatel poskytne credentials
+- Server ověří credentials proti databázi
+- Server vygeneruje dva tokeny:
+  - **Access token**: Krátkodobý JWT (15-60 minut) pro autentizaci požadavků
+  - **Refresh token**: Dlouhodobý token (dny až týdny) pro získání nového access tokenu
+
+#### 2. Přístup k chráněným zdrojům
+
+- Klient zahrnuje JWT v hlavičce požadavku
+- Server validuje token a extrahuje uživatelská data
+- Server autorizuje přístup na základě rolí/oprávnění v tokenu
+
+#### 3. Obnovení tokenu
+
+- Access token vyprší
+- Klient pošle refresh token na speciální endpoint
+- Server ověří refresh token a vydá nový access token
+
+#### 4. Odhlášení
+
+- Clientside: Odstranění JWT z lokálního úložiště
+- Serverside (volitelné): Přidání refresh tokenu na blacklist
+
+### Výhody JWT v Ktoru
+
+1. **Stateless autentizace**: Server nemusí uchovávat session data
+2. **Škálovatelnost**: Bez centrálního session store, každý server může ověřit token nezávisle
+3. **Dobrá integrace s Ktorem**: Jednoduchá konfigurace a použití
+4. **Cross-domain podpora**: Funguje bez problémů mezi různými doménami
+5. **Mobilní podpora**: Dobrá integrace s nativními mobilními aplikacemi
+
+### Nevýhody a omezení
+
+1. **Velikost tokenu**: JWT tokeny jsou větší než tradiční session ID
+2. **Problém s okamžitou invalidací**: Nelze snadno zneplatnit před vypršením
+3. **Bezpečnost ukládání**: Klient musí bezpečně ukládat token
+4. **Riziko XSS**: Zejména při ukládání v localStorage na webu
+5. **Komplexita**: Robustní implementace s refresh tokeny je složitější než tradiční sessions
+
+### Co budete potřebovat specificky v Ktoru
+
+1. **Závislosti**:
+   ```
+   implementation("io.ktor:ktor-server-auth:$ktor_version")
+   implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+   implementation("com.auth0:java-jwt:3.18.2")
+   ```
+
+2. **Konfigurace**:
+  - Nastavení JWT ověřovatele s tajným klíčem
+  - Konfigurace validace claims
+  - Nastavení realm a challenge
+
+3. **API Endpointy**:
+  - /register - pro vytvoření nového uživatele
+  - /login - pro autentizaci a získání tokenu
+  - /refresh - pro obnovení access tokenu
+  - /logout - pro blacklisting aktivního refresh tokenu (volitelné)
+
+### Shrnutí kroků implementace (vysokoúrovňový pohled)
+
+1. Vytvoření modelu uživatele a databázového schématu
+2. Implementace registračního a přihlašovacího endpointu
+3. Konfigurace JWT autentizace v Ktoru
+4. Implementace secured routes s využitím JWT
+5. Implementace refresh token mechanismu
+6. Implementace klientské logiky pro ukládání a použití tokenů
+7. Aplikace bezpečnostních best practices
+
+JWT autentizace v Ktoru nabízí moderní, bezpečný a škálovatelný způsob autentizace uživatelů, který dobře vyhovuje RESTful API a je vhodný jak pro webové, tak mobilní klienty. I když vyžaduje více nastavení než tradiční sessions, poskytuje větší flexibilitu a lepší uživatelský zážitek, zejména v distribuovaných systémech.
+
 ---
 
 Tento průvodce pokrývá hlavní technologie a koncepty použité v projektu. Pro detailnější informace k jednotlivým technologiím navštivte jejich oficiální dokumentaci.
-
