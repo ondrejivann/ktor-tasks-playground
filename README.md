@@ -12,6 +12,7 @@ Kompletní průvodce technologiemi a architekturou použitými v projektu.
 - [Logování](#logování)
 - [Databáze](#databáze)
 - [Auth](#jwt-autentizace-s-ktor-auth-pluginem-kompletní-přehled)
+- [Pre-signed URL a AWS S3](#aws-s3-a-pre-signed-url)
 
 ## Architektura
 
@@ -597,6 +598,112 @@ Ktor poskytuje plugin `ktor-auth-jwt`, který usnadňuje implementaci JWT autent
 7. Aplikace bezpečnostních best practices
 
 JWT autentizace v Ktoru nabízí moderní, bezpečný a škálovatelný způsob autentizace uživatelů, který dobře vyhovuje RESTful API a je vhodný jak pro webové, tak mobilní klienty. I když vyžaduje více nastavení než tradiční sessions, poskytuje větší flexibilitu a lepší uživatelský zážitek, zejména v distribuovaných systémech.
+
+## AWS S3 a Pre-signed URL
+
+### Amazon S3 - Simple Storage Service
+
+Amazon S3 je objektové úložiště navržené pro ukládání a retrievování libovolného množství dat odkudkoli na internetu. Jedná se o vysoce škálovatelnou, spolehlivou a nízkonákladovou infrastrukturu, kterou využívají tisíce aplikací po celém světě. S3 je postaven na tzv. "pay-as-you-go" modelu, kde platíte pouze za úložiště a data transfer, které skutečně využijete.
+
+**Klíčové koncepty AWS S3:**
+- **Bucket** - základní kontejner pro ukládání objektů. Název bucketu musí být globálně unikátní v rámci celého AWS
+- **Object** - základní entita ukládaná v S3 (soubor a jeho metadata)
+- **Key** - unikátní identifikátor objektu v rámci bucketu (de facto cesta k souboru)
+- **Region** - geografická lokace, kde AWS provozuje vaše S3 buckety
+- **Endpoint** - URL přístupový bod pro AWS API
+
+S3 poskytuje REST API, které umožňuje vytvářet, číst, aktualizovat a mazat objekty pomocí standardních HTTP metod (GET, PUT, POST, DELETE). Každý objekt je dostupný přes URL ve formátu: `https://<bucket-name>.s3.<region>.amazonaws.com/<object-key>`.
+
+### Pre-signed URL - Princip fungování
+
+Pre-signed URL je URL s omezenou časovou platností, které obsahuje zakódované autorizační informace umožňující provést specifickou operaci nad objektem v úložišti bez nutnosti mít přímé přihlašovací údaje k danému úložišti. Představuje bezpečný způsob, jak delegovat přímý přístup k objektům v cloudovém úložišti.
+
+**Princip fungování pre-signed URL:**
+1. Server s oprávněním přístupu k úložišti vygeneruje speciální URL
+2. URL obsahuje šifrovaný podpis vytvořený z přístupových klíčů serveru
+3. URL má stanovenu omezenou dobu platnosti (expiraci)
+4. URL může být omezeno na konkrétní HTTP metodu (GET, PUT)
+5. Klient může použít toto URL přímo bez dalších ověřovacích údajů
+
+### Pre-signed URL v AWS S3
+
+V kontextu AWS S3 pre-signed URL umožňuje generovat dočasný přístupový odkaz, který dovoluje uživatelům bez AWS přihlašovacích údajů provádět specifické operace nad S3 objekty - typicky upload (PUT) nebo download (GET) souborů. Toto řešení elegantně obchází běžná omezení přímého přístupu ke cloudovému úložišti.
+
+**Flow při práci s pre-signed URL v AWS S3:**
+
+1. **Generování URL na serveru:**
+  - Aplikační server, který má AWS přístupové klíče, vytvoří pre-signed URL
+  - Při generování specifikuje operaci (GET/PUT), bucket, klíč objektu a dobu platnosti
+  - URL obsahuje všechny potřebné autorizační parametry a podpis
+
+2. **Předání URL klientovi:**
+  - Server poskytne vygenerované URL klientské aplikaci
+  - Typicky jako odpověď na API požadavek klienta
+
+3. **Použití URL klientem:**
+  - Klient provede HTTP požadavek přímo na pre-signed URL
+  - Pro download (GET): klient získá objekt přímo z S3
+  - Pro upload (PUT): klient nahraje data přímo do S3
+
+4. **Zpracování na straně AWS S3:**
+  - S3 ověří platnost URL a jeho podpisu
+  - Zkontroluje, zda URL nevypršelo
+  - Pokud je vše v pořádku, povolí požadovanou operaci
+
+### Typické scénáře použití pre-signed URL
+
+1. **Upload souborů přímo do S3:**
+  - Uživatel potřebuje nahrát soubor (např. profilový obrázek)
+  - Backend generuje pre-signed PUT URL
+  - Frontend nahrává soubor přímo do S3 bez průchodu přes server
+  - Po úspěšném nahrání server uloží metadata do databáze
+
+2. **Bezpečné stahování privátních souborů:**
+  - Soubory v S3 jsou uloženy jako privátní (nepřístupné veřejnosti)
+  - Při požadavku na stažení server generuje dočasné pre-signed GET URL
+  - Uživatel může soubor stáhnout přímo z S3, ale jen po omezenou dobu
+
+3. **Streamování médií bez veřejného přístupu:**
+  - Video/audio soubory jsou uloženy privátně
+  - Pro každé přehrání se generuje krátkodobé pre-signed URL
+  - Zajišťuje kontrolu přístupu k prémiového obsahu
+
+### Výhody použití pre-signed URL s AWS S3
+
+1. **Efektivita a škálovatelnost:**
+  - Data tečou přímo mezi klientem a S3, bez zátěže aplikačního serveru
+  - S3 je vysoce škálovatelné pro paralelní uploady/downloady
+
+2. **Bezpečnost:**
+  - Aplikační server nikdy neexponuje AWS přístupové klíče klientům
+  - Možnost nastavit krátkou expiraci URL (minuty)
+  - Omezení na konkrétní operaci a soubor
+
+3. **Spolehlivost:**
+  - Využívá robustní AWS infrastrukturu
+  - Automatická redundance dat v rámci S3
+  - Dostupnost 99.99% garantovaná AWS
+
+4. **Kontrola přístupu:**
+  - Granulární kontrola - každé URL je specifické pro jeden objekt a operaci
+  - Časově omezený přístup - URL automaticky expirují
+
+### Praktické aspekty implementace
+
+**Bezpečnostní best practices:**
+- Nastavujte co nejkratší možnou expiraci URL (minuty, ne dny)
+- Validujte typ a velikost souborů před generováním upload URL
+- Implementujte dodatečnou autorizaci před generováním URL
+- Používejte HTTPS pro všechny komunikace
+
+**Technické aspekty:**
+- Správná konfigurace CORS v S3 pro cross-origin požadavky
+- Implementace Content-Type restrictions pro uploady
+- Nastavení maximální velikosti souborů
+- Automatické ověření úspěšnosti uploadu
+
+Pre-signed URL v kombinaci s AWS S3 představuje elegantní, bezpečné a vysoce škálovatelné řešení pro správu uživatelských souborů v moderních cloudových aplikacích, které minimalizuje zátěž aplikačních serverů a poskytuje výborný uživatelský zážitek.
+
 
 ---
 
