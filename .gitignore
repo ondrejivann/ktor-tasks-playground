@@ -40,3 +40,5 @@ out/
 .swagger-codegen-ignore
 /docs/index.html
 /.kotlin/sessions/
+
+.env
