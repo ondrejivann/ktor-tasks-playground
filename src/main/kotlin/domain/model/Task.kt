@@ -9,4 +9,5 @@ data class Task(
     val description: String,
     val priority: Priority,
     val status: TaskStatus,
+    val attachments: List<TaskAttachment> = emptyList()
 )
