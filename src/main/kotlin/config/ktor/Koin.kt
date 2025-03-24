@@ -10,5 +10,8 @@ fun Application.configureKoin() {
     install(Koin) {
         slf4jLogger()
         modules(AppModule().module)
+        modules(org.koin.dsl.module {
+            single { environment.config }
+        })
     }
 }

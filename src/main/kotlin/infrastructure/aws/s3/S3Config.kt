@@ -16,7 +16,7 @@ object S3Config {
     const val DEFAULT_URL_EXPIRATION_SECONDS = 3600L
     
     // Konstanty pro S3 operace
-    const val UPLOADS_PREFIX = "uploads/"
+    const val UPLOADS_PREFIX = "taskimages/"
     const val METADATA_ORIGINAL_FILENAME = "originalFileName"
     const val METADATA_UPLOADED_BY = "uploadedBy"
     const val METADATA_UPLOADED_AT = "uploadedAt"

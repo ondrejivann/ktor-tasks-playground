@@ -25,7 +25,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
         return withContext(Dispatchers.IO) {
             S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
                 val request = PutObjectRequest {
-                    bucket = bucketName
+                    this.bucket = bucketName
                     this.key = key
                     this.contentType = contentType
                     this.metadata = metadata
@@ -43,7 +43,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
         return withContext(Dispatchers.IO) {
             S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
                 val request = GetObjectRequest {
-                    bucket = bucketName
+                    this.bucket = bucketName
                     this.key = key
                 }
                 val preSignedRequest = s3Client.presignGetObject(
@@ -60,7 +60,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
             withContext(Dispatchers.IO) {
                 S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
                     s3Client.headObject(HeadObjectRequest {
-                        bucket = bucketName
+                        this.bucket = bucketName
                         this.key = key
                     })
                 }
@@ -70,21 +70,4 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
             false
         }
     }
-
-    private fun validateFileSize(fileSize: Long) {
-        val maxSizeBytes = 10_000_000L // 10 MB
-        if (fileSize <= 0 || fileSize > maxSizeBytes) {
-            throw InvalidFileException("Invalid file size. The maximum size is ${maxSizeBytes/1_000_000} MB.")
-        }
-    }
-
-    private fun validateContentType(contentType: String) {
-        val allowedTypes = listOf("image/jpeg", "image/png", "application/pdf", "text/plain")
-        if (contentType !in allowedTypes) {
-            throw InvalidFileException("Unsupported file type. Allowed types are: ${allowedTypes.joinToString()}")
-        }
-    }
-
-    class InvalidFileException(message: String) : Exception(message)
-    class FileNotFoundException(message: String) : Exception(message)
 }
