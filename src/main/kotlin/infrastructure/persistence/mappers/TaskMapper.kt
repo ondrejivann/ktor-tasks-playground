@@ -8,7 +8,8 @@ import infrastructure.persistence.dao.taskStatusDaoToModel
 import infrastructure.persistence.table.TaskAttachmentTable
 
 fun taskDaoToModelWithStatus(dao: TaskDAO): Task {
-    val attachments = TaskAttachmentDAO.find { TaskAttachmentTable.taskId eq dao.id }
+    val attachments = TaskAttachmentDAO
+        .find { TaskAttachmentTable.taskId eq dao.id }
         .map { attachmentDao ->
             TaskAttachment(
                 id = attachmentDao.id.value,
@@ -16,6 +17,7 @@ fun taskDaoToModelWithStatus(dao: TaskDAO): Task {
                 fileKey = attachmentDao.fileKey,
                 fileName = attachmentDao.fileName,
                 contentType = attachmentDao.contentType,
+                uploadStatus = attachmentDao.uploadStatus,
             )
         }
 

@@ -9,4 +9,6 @@ data class TaskGQL(
     val description: String,
     val priority: PriorityGQL,
     val status: TaskStatusGQL,
+    @GraphQLDescription("Seznam příloh úkolu")
+    val attachments: List<TaskAttachmentGQL> = emptyList()
 )

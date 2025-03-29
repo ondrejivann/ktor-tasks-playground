@@ -1,7 +1,7 @@
 package infrastructure.persistence.repository
 
 import domain.model.TaskStatus
-import domain.ports.TaskStatusRepository
+import domain.ports.driven.TaskStatusRepository
 import infrastructure.persistence.dao.TaskStatusDAO
 import infrastructure.persistence.mappers.statusDaoToModel
 import infrastructure.persistence.common.suspendTransaction

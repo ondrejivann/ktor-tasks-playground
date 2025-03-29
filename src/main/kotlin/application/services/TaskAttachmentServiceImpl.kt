@@ -1,0 +1,58 @@
+package application.services
+
+import domain.model.TaskAttachment
+import domain.model.UploadStatus
+import domain.ports.driven.TaskAttachmentRepository
+import domain.ports.driving.TaskAttachmentService
+import domain.ports.driven.TaskRepository
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.koin.core.annotation.Single
+
+@Single
+class TaskAttachmentServiceImpl(
+    private val taskAttachmentRepository: TaskAttachmentRepository,
+) : TaskAttachmentService {
+    private val logger = KotlinLogging.logger {}
+
+    override suspend fun getTaskAttachmentById(id: Int): TaskAttachment? {
+        return taskAttachmentRepository.getAttachmentById(id)
+    }
+
+    override suspend fun getAttachmentByFileKey(fileKey: String): TaskAttachment? {
+        return taskAttachmentRepository.getAttachmentByFileKey(fileKey)
+    }
+
+    override suspend fun getAttachmentsForTask(taskId: Int): List<TaskAttachment> {
+        return taskAttachmentRepository.getAttachmentsForTask(taskId)
+    }
+
+    override suspend fun addTaskAttachment(taskAttachment: TaskAttachment): TaskAttachment {
+        logger.debug { "Creating new task attachment: ${taskAttachment.fileKey}" }
+
+        try {
+            taskAttachmentRepository.addAttachment(taskAttachment).also {
+                logger.debug { "Task attachment '${it.fileKey}' created successfully" }
+            }
+        } catch (e: IllegalStateException) {
+            logger.error { "Failed to create task attachment: ${e.message}" }
+            throw TaskAttachmentCreationException("Failed to create task attachment: ${e.message}", e)
+        }
+
+        return taskAttachmentRepository.addAttachment(taskAttachment)
+    }
+
+    override suspend fun updateAttachmentUploadStatus(id: Int, uploadStatus: UploadStatus): Boolean {
+        return taskAttachmentRepository.updateAttachmentUploadStatus(id, uploadStatus)
+    }
+
+    override suspend fun removeAttachment(id: Int): Boolean {
+        taskAttachmentRepository.getAttachmentById(id) ?: return false
+
+        return taskAttachmentRepository.removeAttachment(id)
+    }
+
+    class TaskNotFoundException(message: String) : Exception(message)
+    class AttachmentNotFoundException(message: String) : Exception(message)
+    class TaskAttachmentCreationException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+    class AttachmentException(message: String) : Exception(message)
+}

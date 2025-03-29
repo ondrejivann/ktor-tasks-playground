@@ -1,10 +1,9 @@
 package infrastructure.graphql
 
 import application.services.TaskCreationException
-import com.expediagroup.graphql.server.operations.Mutation
 import domain.model.Priority
 import domain.model.command.CreateTaskCommand
-import domain.ports.TaskService
+import domain.ports.driving.TaskService
 import infrastructure.graphql.model.CreateTaskCommandGQL
 import infrastructure.graphql.model.PriorityGQL
 import infrastructure.graphql.model.TaskOperationResultGQL

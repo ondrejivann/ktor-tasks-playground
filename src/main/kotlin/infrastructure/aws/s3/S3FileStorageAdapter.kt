@@ -1,12 +1,11 @@
 package infrastructure.aws.s3
 
 import aws.sdk.kotlin.services.s3.S3Client
-import aws.sdk.kotlin.services.s3.model.GetObjectRequest
-import aws.sdk.kotlin.services.s3.model.HeadObjectRequest
-import aws.sdk.kotlin.services.s3.model.PutObjectRequest
+import aws.sdk.kotlin.services.s3.model.*
 import aws.sdk.kotlin.services.s3.presigners.presignGetObject
 import aws.sdk.kotlin.services.s3.presigners.presignPutObject
-import domain.ports.FileStoragePort
+import domain.ports.driven.FileStoragePort
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.config.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,6 +15,7 @@ import kotlin.time.toKotlinDuration
 
 @Single(binds = [FileStoragePort::class])
 class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
+    private val logger = KotlinLogging.logger { }
 
     private val region = config.property(S3Config.AWS_REGION_PATH).getString()
     private val bucketName = config.property(S3Config.AWS_BUCKET_NAME_PATH).getString()
@@ -67,6 +67,25 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
             }
             true
         } catch (e: Exception) {
+            false
+        }
+    }
+
+    override suspend fun deleteObject(key: String): Boolean {
+        return try {
+            withContext(Dispatchers.IO) {
+                S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
+                    s3Client.deleteObject(
+                        DeleteObjectRequest {
+                            this.bucket = bucketName
+                            this.key = key
+                        }
+                    )
+                }
+            }
+            true
+        } catch (e: Exception) {
+            logger.error { "Failed to delete object with key $key: ${e.message}" }
             false
         }
     }

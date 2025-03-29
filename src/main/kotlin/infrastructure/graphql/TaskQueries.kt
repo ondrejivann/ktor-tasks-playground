@@ -3,26 +3,28 @@ package infrastructure.graphql
 import domain.model.Priority
 import domain.model.Task
 import domain.model.TaskStatus
-import domain.ports.TaskService
+import domain.ports.driving.TaskService
 import infrastructure.graphql.model.*
+import infrastructure.graphql.service.TaskGraphQLService
 import org.koin.core.annotation.Single
 
 @Single
 class TaskQueries(
     private val taskService: TaskService,
+    private val taskGraphQLService: TaskGraphQLService
 ) {
 
     // Filtrování úkolů by mělo být pro lepší efektivitu implementováno přímo v service nebo v repozitáři blíže databázi
     suspend fun all(filter: TaskFilterGQL? = null): List<TaskGQL> {
         if (filter == null) {
-            return taskService.allTasks().map { it.toGQL() }
+            return taskGraphQLService.getAllTasks()
         }
 
-        var filteredTasks = taskService.allTasks()
+        var filteredTasks = taskGraphQLService.getAllTasks()
 
         if (filter.priority != null) {
             filteredTasks = filteredTasks.filter {
-                it.priority.toGQL() == filter.priority
+                it.priority == filter.priority
             }
         }
 
@@ -74,38 +76,39 @@ class TaskQueries(
             }
         }
 
-        return filteredTasks.map { it.toGQL() }
+        return filteredTasks
     }
+}
 
-    private fun Task.toGQL(): TaskGQL =
-        TaskGQL(
-            id = id,
-            name = name,
-            description = description,
-            priority = priority.toGQL(),
-            status = status.toGQL(),
-        )
-
-    private fun Priority.toGQL(): PriorityGQL =
-        when (this) {
-            Priority.LOW -> PriorityGQL.LOW
-            Priority.MEDIUM -> PriorityGQL.MEDIUM
-            Priority.HIGH -> PriorityGQL.HIGH
-            Priority.VITAL -> PriorityGQL.VITAL
-        }
-
-    private fun PriorityGQL.toDomain(): Priority =
-        when(this) {
-            PriorityGQL.LOW -> Priority.LOW
-            PriorityGQL.MEDIUM -> Priority.MEDIUM
-            PriorityGQL.HIGH -> Priority.HIGH
-            PriorityGQL.VITAL -> Priority.VITAL
-        }
-
-    private fun TaskStatus.toGQL() = TaskStatusGQL(
+fun Task.toGQL(): TaskGQL =
+    TaskGQL(
         id = id,
-        code = code,
         name = name,
         description = description,
+        priority = priority.toGQL(),
+        status = status.toGQL(),
+        attachments = emptyList(),
     )
-}
+
+fun Priority.toGQL(): PriorityGQL =
+    when (this) {
+        Priority.LOW -> PriorityGQL.LOW
+        Priority.MEDIUM -> PriorityGQL.MEDIUM
+        Priority.HIGH -> PriorityGQL.HIGH
+        Priority.VITAL -> PriorityGQL.VITAL
+    }
+
+fun PriorityGQL.toDomain(): Priority =
+    when(this) {
+        PriorityGQL.LOW -> Priority.LOW
+        PriorityGQL.MEDIUM -> Priority.MEDIUM
+        PriorityGQL.HIGH -> Priority.HIGH
+        PriorityGQL.VITAL -> Priority.VITAL
+    }
+
+fun TaskStatus.toGQL() = TaskStatusGQL(
+    id = id,
+    code = code,
+    name = name,
+    description = description,
+)

@@ -12,4 +12,5 @@ class TaskAttachmentDAO(id: EntityID<Int>) : IntEntity(id) {
     var fileKey by TaskAttachmentTable.fileKey
     var fileName by TaskAttachmentTable.fileName
     var contentType by TaskAttachmentTable.contentType
+    var uploadStatus by TaskAttachmentTable.uploadStatus
 }

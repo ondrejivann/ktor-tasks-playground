@@ -3,9 +3,9 @@ package application.services
 import domain.model.Priority
 import domain.model.Task
 import domain.model.command.CreateTaskCommand
-import domain.ports.TaskRepository
-import domain.ports.TaskService
-import domain.ports.TaskStatusService
+import domain.ports.driven.TaskRepository
+import domain.ports.driving.TaskService
+import domain.ports.driving.TaskStatusService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 
@@ -29,7 +29,7 @@ class TaskServiceImpl(
         return repository.taskByName(name)
     }
 
-    override suspend fun addTask(command: CreateTaskCommand) {
+    override suspend fun addTask(command: CreateTaskCommand): Task {
         logger.debug { "Creating new task: ${command.name}" }
 
         validateTaskName(command.name)
@@ -43,11 +43,13 @@ class TaskServiceImpl(
             description = command.description.trim(),
             priority = command.priority,
             status = defaultStatus,
+            attachments = emptyList(),
         )
 
         try {
-            repository.addTask(task)
-            logger.info { "Task '${task.name}' created successfully" }
+            return repository.addTask(task).also {
+                logger.info { "Task '${task.name}' created successfully" }
+            }
         } catch (e: IllegalStateException) {
             logger.error { "Failed to create task: ${e.message}" }
             throw TaskCreationException("Failed to create task: ${e.message}", e)

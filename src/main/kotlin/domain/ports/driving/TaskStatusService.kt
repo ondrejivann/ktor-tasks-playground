@@ -1,4 +1,4 @@
-package domain.ports
+package domain.ports.driving
 
 import domain.model.TaskStatus
 

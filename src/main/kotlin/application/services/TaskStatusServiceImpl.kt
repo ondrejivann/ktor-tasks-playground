@@ -1,8 +1,8 @@
 package application.services
 
 import domain.model.TaskStatus
-import domain.ports.TaskStatusRepository
-import domain.ports.TaskStatusService
+import domain.ports.driven.TaskStatusRepository
+import domain.ports.driving.TaskStatusService
 import org.koin.core.annotation.Single
 
 @Single

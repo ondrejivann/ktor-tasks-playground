@@ -1,7 +1,8 @@
 package infrastructure.persistence.repository
 
 import domain.model.TaskAttachment
-import domain.ports.TaskAttachmentRepository
+import domain.model.UploadStatus
+import domain.ports.driven.TaskAttachmentRepository
 import infrastructure.persistence.common.suspendTransaction
 import infrastructure.persistence.dao.TaskAttachmentDAO
 import infrastructure.persistence.table.TaskAttachmentTable
@@ -19,6 +20,7 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
                     fileKey = dao.fileKey,
                     fileName = dao.fileName,
                     contentType = dao.contentType,
+                    uploadStatus = dao.uploadStatus,
                 )
             }
     }
@@ -37,6 +39,7 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
             fileKey = dao.fileKey,
             fileName = dao.fileName,
             contentType = dao.contentType,
+            uploadStatus = dao.uploadStatus,
         )
     }
 
@@ -49,6 +52,16 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
         count > 0
     }
 
+    override suspend fun updateAttachmentUploadStatus(id: Int, uploadStatus: UploadStatus): Boolean = suspendTransaction {
+        val existingAttachment = TaskAttachmentDAO.findById(id)
+        if (existingAttachment != null) {
+            existingAttachment.apply {
+                this.uploadStatus = uploadStatus
+            }
+            true
+        } else false
+    }
+
     override suspend fun getAttachmentById(id: Int): TaskAttachment? = suspendTransaction {
         TaskAttachmentDAO.findById(id)?.let { dao ->
             TaskAttachment(
@@ -57,7 +70,25 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
                 fileKey = dao.fileKey,
                 fileName = dao.fileName,
                 contentType = dao.contentType,
+                uploadStatus = dao.uploadStatus,
             )
         }
+    }
+
+    override suspend fun getAttachmentByFileKey(fileKey: String): TaskAttachment? = suspendTransaction {
+        TaskAttachmentDAO
+            .find { TaskAttachmentTable.fileKey eq fileKey }
+            .limit(1)
+            .map { dao ->
+                TaskAttachment(
+                    id = dao.id.value,
+                    taskId = dao.taskId.value,
+                    fileKey = dao.fileKey,
+                    fileName = dao.fileName,
+                    contentType = dao.contentType,
+                    uploadStatus = dao.uploadStatus,
+                )
+            }
+            .firstOrNull()
     }
 }

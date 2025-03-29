@@ -6,14 +6,14 @@ import kotlinx.serialization.Serializable
 data class FileUploadRequest(
     val fileName: String,
     val contentType: String,
-    val fileSize: Long
+    val fileSize: Int
 )
 
 @Serializable
 data class FileUploadResponse(
     val uploadUrl: String,
     val fileKey: String,
-    val expiresInSeconds: Long
+    val expiresInSeconds: Int
 )
 
 @Serializable
@@ -25,7 +25,12 @@ data class FileDownloadRequest(
 data class FileDownloadResponse(
     val downloadUrl: String,
     val fileName: String,
-    val expiresInSeconds: Long
+    val expiresInSeconds: Int
+)
+
+@Serializable
+data class FileDeleteRequest(
+    val fileKey: String,
 )
 
 @Serializable

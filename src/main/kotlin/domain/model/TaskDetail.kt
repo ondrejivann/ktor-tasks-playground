@@ -1,13 +1,10 @@
 package domain.model
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-data class Task(
+data class TaskDetail(
     val id: Int,
     val name: String,
     val description: String,
     val priority: Priority,
     val status: TaskStatus,
-    val attachments: List<TaskAttachment>
+    val attachments: List<TaskAttachmentDetail>
 )

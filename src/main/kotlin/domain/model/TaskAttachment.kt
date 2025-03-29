@@ -9,4 +9,5 @@ data class TaskAttachment(
     val fileKey: String,
     val fileName: String,
     val contentType: String,
+    val uploadStatus: UploadStatus,
 )

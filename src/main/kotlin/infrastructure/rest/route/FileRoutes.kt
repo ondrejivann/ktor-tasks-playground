@@ -16,5 +16,8 @@ fun Route.fileRoutes(fileController: FileController) {
         get("/exists/{fileKey}") {
             fileController.checkFileExists(call)
         }
+        post("/remove") {
+            fileController.removeFile(call)
+        }
     }
 }

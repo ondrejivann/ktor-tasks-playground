@@ -1,14 +1,9 @@
 package infrastructure.rest.controller
 
-import application.services.FileServiceImpl
 import application.services.FileServiceImpl.FileNotFoundException
 import application.services.FileServiceImpl.InvalidFileException
-import domain.ports.FileService
-import infrastructure.rest.dto.ErrorResponse
-import infrastructure.rest.dto.FileDownloadRequest
-import infrastructure.rest.dto.FileDownloadResponse
-import infrastructure.rest.dto.FileUploadRequest
-import infrastructure.rest.dto.FileUploadResponse
+import domain.ports.driving.FileService
+import infrastructure.rest.dto.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -95,6 +90,28 @@ class FileControllerImpl(
             call.respond(
                 HttpStatusCode.InternalServerError,
                 ErrorResponse(message = "Failed to verify the existence of the file")
+            )
+        }
+    }
+
+    override suspend fun removeFile(call: ApplicationCall) {
+        try {
+            val request = call.receive<FileDeleteRequest>()
+
+            val result = fileService.deleteFile(request.fileKey)
+
+            if (result) {
+                call.respond(HttpStatusCode.OK)
+            } else {
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    ErrorResponse(message = "Failed to remove the file")
+                )
+            }
+        } catch (e: Exception) {
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(message = "Failed to remove the file")
             )
         }
     }
