@@ -1,6 +1,6 @@
 package infrastructure.graphql
 
-import application.services.TaskCreationException
+import application.exceptions.BusinessRuleViolationException
 import domain.model.Priority
 import domain.model.command.CreateTaskCommand
 import domain.ports.driving.TaskService
@@ -21,7 +21,7 @@ class TaskMutations(
                 success = true,
                 message = "Task '${input.name}' successfully created"
             )
-        } catch (e: TaskCreationException) {
+        } catch (e: BusinessRuleViolationException) {
             TaskOperationResultGQL(
                 success = false,
                 message = e.message ?: "Failed to create task due to business rules"

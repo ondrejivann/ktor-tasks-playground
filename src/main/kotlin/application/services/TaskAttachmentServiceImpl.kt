@@ -1,10 +1,11 @@
 package application.services
 
+import application.exceptions.BusinessRuleViolationException
+import common.exceptions.ErrorCodes
 import domain.model.TaskAttachment
 import domain.model.UploadStatus
 import domain.ports.driven.TaskAttachmentRepository
 import domain.ports.driving.TaskAttachmentService
-import domain.ports.driven.TaskRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 
@@ -35,7 +36,11 @@ class TaskAttachmentServiceImpl(
             }
         } catch (e: IllegalStateException) {
             logger.error { "Failed to create task attachment: ${e.message}" }
-            throw TaskAttachmentCreationException("Failed to create task attachment: ${e.message}", e)
+            throw BusinessRuleViolationException(
+                message = "Failed to create task attachment: ${e.message}",
+                cause = e,
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+            )
         }
 
         return taskAttachmentRepository.addAttachment(taskAttachment)
@@ -50,9 +55,4 @@ class TaskAttachmentServiceImpl(
 
         return taskAttachmentRepository.removeAttachment(id)
     }
-
-    class TaskNotFoundException(message: String) : Exception(message)
-    class AttachmentNotFoundException(message: String) : Exception(message)
-    class TaskAttachmentCreationException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-    class AttachmentException(message: String) : Exception(message)
 }

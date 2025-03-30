@@ -4,6 +4,9 @@ import domain.model.file.FileDownloadInfo
 import domain.model.file.FileUploadInfo
 import domain.ports.driving.FileService
 import domain.ports.driven.FileStoragePort
+import application.exceptions.FileValidationException
+import application.exceptions.ResourceNotFoundException
+import common.exceptions.ErrorCodes
 import infrastructure.aws.s3.S3Config
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.config.*
@@ -13,7 +16,7 @@ import java.util.*
 @Single
 class FileServiceImpl(
     private val fileStorage: FileStoragePort,
-    private val config: ApplicationConfig,
+    config: ApplicationConfig,
 ) : FileService {
     private val logger = KotlinLogging.logger {}
 
@@ -44,7 +47,7 @@ class FileServiceImpl(
         logger.debug { "Generating download link for file: $fileKey" }
 
         if (!fileStorage.objectExists(fileKey)) {
-            throw FileNotFoundException("The requested file was not found")
+            throw ResourceNotFoundException(resource = "File", identifier = fileKey, errorCode = ErrorCodes.RESOURCE_NOT_FOUND)
         }
 
         val downloadUrl = fileStorage.generateDownloadUrl(fileKey)
@@ -86,17 +89,20 @@ class FileServiceImpl(
     private fun validateFileSize(fileSize: Int) {
         val maxSizeBytes = 10_000_000L // 10 MB
         if (fileSize <= 0 || fileSize > maxSizeBytes) {
-            throw InvalidFileException("Invalid file size. The maximum size is ${maxSizeBytes/1_000_000} MB.")
+            throw FileValidationException(
+                message = "Invalid file size. The maximum size is ${maxSizeBytes/1_000_000} MB.",
+                errorCode = ErrorCodes.FILE_VALIDATION_ERROR,
+            )
         }
     }
 
     private fun validateContentType(contentType: String) {
         val allowedTypes = listOf("image/jpeg", "image/png", "application/pdf", "text/plain")
         if (contentType !in allowedTypes) {
-            throw InvalidFileException("Unsupported file type. Allowed types are: ${allowedTypes.joinToString()}")
+            throw FileValidationException(
+                message = "Unsupported file type. Allowed types are: ${allowedTypes.joinToString()}",
+                errorCode = ErrorCodes.FILE_VALIDATION_ERROR,
+            )
         }
     }
-
-    class InvalidFileException(message: String) : Exception(message)
-    class FileNotFoundException(message: String) : Exception(message)
 }

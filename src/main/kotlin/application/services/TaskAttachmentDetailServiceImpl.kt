@@ -1,6 +1,8 @@
 package application.services
 
-import application.services.TaskAttachmentServiceImpl.*
+import application.exceptions.BusinessRuleViolationException
+import common.exceptions.ErrorCodes
+import domain.exceptions.EntityNotFoundException
 import domain.model.TaskAttachment
 import domain.model.TaskAttachmentDetail
 import domain.model.UploadStatus
@@ -39,7 +41,8 @@ class TaskAttachmentDetailServiceImpl(
         contentType: String,
         fileSize: Int
     ): FileUploadInfo {
-        taskRepository.taskById(taskId) ?: throw TaskNotFoundException("Task with ID $taskId not found")
+        taskRepository.taskById(taskId)
+            ?: throw EntityNotFoundException("Task", taskId, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         val uploadInfo = fileService.prepareFileUpload(fileName, contentType, fileSize)
 
@@ -57,14 +60,18 @@ class TaskAttachmentDetailServiceImpl(
     }
 
     override suspend fun confirmAttachmentUpload(taskId: Int, fileKey: String): TaskAttachmentDetail {
-        taskRepository.taskById(taskId) ?: throw TaskNotFoundException("Task with ID $taskId not found")
+        taskRepository.taskById(taskId)
+            ?: throw EntityNotFoundException("Task", taskId, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         val attachment = taskAttachmentService.getAttachmentByFileKey(fileKey)
-            ?: throw AttachmentNotFoundException("Attachment with fileKey $fileKey not found")
+            ?: throw EntityNotFoundException("Attachment", fileKey, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         if (!fileService.checkFileExists(fileKey)) {
             taskAttachmentService.updateAttachmentUploadStatus(attachment.id, UploadStatus.FAILED)
-            throw AttachmentException("File not found or upload failed")
+            throw BusinessRuleViolationException(
+                message = "File not found or upload failed",
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+            )
         }
 
         val fileDownloadInfo = fileService.generateDownloadLink(attachment.fileKey)
@@ -78,13 +85,13 @@ class TaskAttachmentDetailServiceImpl(
                 downloadUrl = fileDownloadInfo.downloadUrl
             )
         } else {
-            throw AttachmentException("Attachment not found")
+            throw EntityNotFoundException("Attachment", attachment.id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
         }
     }
 
     override suspend fun removeAttachment(id: Int): Boolean {
         val attachment = taskAttachmentService.getTaskAttachmentById(id)
-            ?: throw AttachmentNotFoundException("Attachment with ID $id not found")
+            ?: throw EntityNotFoundException("Attachment", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         fileService.deleteFile(attachment.fileKey)
 
@@ -93,7 +100,7 @@ class TaskAttachmentDetailServiceImpl(
 
     override suspend fun generateDownloadUrlForAttachment(id: Int): String {
         val attachment = taskAttachmentService.getTaskAttachmentById(id)
-            ?: throw AttachmentNotFoundException("Attachment with ID $id not found")
+            ?: throw EntityNotFoundException("Attachment", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         return fileService.generateDownloadLink(attachment.fileKey).downloadUrl
     }

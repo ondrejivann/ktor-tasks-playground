@@ -1,8 +1,9 @@
 package infrastructure.rest.controller
 
-import application.services.FileServiceImpl.FileNotFoundException
-import application.services.FileServiceImpl.InvalidFileException
+import common.exceptions.ErrorCodes
+import domain.exceptions.ValidationException
 import domain.ports.driving.FileService
+import infrastructure.exceptions.FileStorageException
 import infrastructure.rest.dto.*
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -15,103 +16,62 @@ class FileControllerImpl(
     private val fileService: FileService,
 ) : FileController {
     override suspend fun prepareFileUpload(call: ApplicationCall) {
-        try {
-            val request = call.receive<FileUploadRequest>()
+        val request = call.receive<FileUploadRequest>()
 
-            val fileUploadInfo = fileService.prepareFileUpload(
-                fileName = request.fileName,
-                contentType = request.contentType,
-                fileSize = request.fileSize
-            )
+        val fileUploadInfo = fileService.prepareFileUpload(
+            fileName = request.fileName,
+            contentType = request.contentType,
+            fileSize = request.fileSize
+        )
 
-            call.respond(
-                HttpStatusCode.OK,
-                FileUploadResponse(
-                    uploadUrl = fileUploadInfo.uploadUrl,
-                    fileKey = fileUploadInfo.fileKey,
-                    expiresInSeconds = fileUploadInfo.expiresInSeconds
-                )
+        call.respond(
+            HttpStatusCode.OK,
+            FileUploadResponse(
+                uploadUrl = fileUploadInfo.uploadUrl,
+                fileKey = fileUploadInfo.fileKey,
+                expiresInSeconds = fileUploadInfo.expiresInSeconds
             )
-        } catch (e: InvalidFileException) {
-            call.respond(
-                HttpStatusCode.BadRequest,
-                ErrorResponse(message = e.message ?: "File validation error", code = "INVALID_FILE")
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse(message = "Failed to prepare file upload")
-            )
-        }
+        )
     }
 
     override suspend fun getDownloadLink(call: ApplicationCall) {
-        try {
-            val request = call.receive<FileDownloadRequest>()
+        val request = call.receive<FileDownloadRequest>()
 
-            val downloadInfo = fileService.generateDownloadLink(request.fileKey)
+        val downloadInfo = fileService.generateDownloadLink(request.fileKey)
 
-            call.respond(
-                HttpStatusCode.OK,
-                FileDownloadResponse(
-                    downloadUrl = downloadInfo.downloadUrl,
-                    fileName = downloadInfo.fileName,
-                    expiresInSeconds = downloadInfo.expiresInSeconds
-                )
+        call.respond(
+            HttpStatusCode.OK,
+            FileDownloadResponse(
+                downloadUrl = downloadInfo.downloadUrl,
+                fileName = downloadInfo.fileName,
+                expiresInSeconds = downloadInfo.expiresInSeconds
             )
-        } catch (e: FileNotFoundException) {
-            call.respond(
-                HttpStatusCode.NotFound,
-                ErrorResponse(message = e.message ?: "File not found", code = "FILE_NOT_FOUND")
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse(message = "Unable to get download link")
-            )
-        }
+        )
     }
 
     override suspend fun checkFileExists(call: ApplicationCall) {
-        try {
-            val fileKey = call.parameters["fileKey"]
-                ?: return call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse(message = "Missing fileKey parameter", code = "MISSING_PARAMETER")
-                )
+        val fileKey = call.parameters["fileKey"]
+            ?: throw ValidationException("Missing fileKey parameter", errorCode = ErrorCodes.VALIDATION_ERROR)
 
-            val exists = fileService.checkFileExists(fileKey)
+        val exists = fileService.checkFileExists(fileKey)
 
-            call.respond(
-                HttpStatusCode.OK,
-                mapOf("exists" to exists)
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse(message = "Failed to verify the existence of the file")
-            )
-        }
+        call.respond(
+            HttpStatusCode.OK,
+            mapOf("exists" to exists)
+        )
     }
 
     override suspend fun removeFile(call: ApplicationCall) {
-        try {
-            val request = call.receive<FileDeleteRequest>()
+        val request = call.receive<FileDeleteRequest>()
 
-            val result = fileService.deleteFile(request.fileKey)
+        val result = fileService.deleteFile(request.fileKey)
 
-            if (result) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    ErrorResponse(message = "Failed to remove the file")
-                )
-            }
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse(message = "Failed to remove the file")
+        if (result) {
+            call.respond(HttpStatusCode.OK)
+        } else {
+            throw FileStorageException(
+                message = "Failed to remove the file",
+                errorCode = ErrorCodes.FILE_STORAGE_ERROR
             )
         }
     }

@@ -1,7 +1,7 @@
 package infrastructure.rest.controller
 
-import application.services.TaskAttachmentServiceImpl.AttachmentNotFoundException
-import application.services.TaskAttachmentServiceImpl.TaskNotFoundException
+import common.exceptions.ErrorCodes
+import domain.exceptions.ValidationException
 import domain.ports.driving.TaskAttachmentDetailService
 import infrastructure.rest.dto.*
 import io.ktor.http.*
@@ -16,147 +16,84 @@ class TaskAttachmentControllerImpl(
 ) : TaskAttachmentController {
 
     override suspend fun getAttachmentsForTask(call: ApplicationCall) {
-        try {
-            val taskId = call.parameters["taskId"]?.toIntOrNull()
-                ?: return call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("Invalid task ID", "INVALID_TASK_ID")
-                )
+        val taskId = call.parameters["taskId"]?.toIntOrNull()
+            ?: throw ValidationException("Invalid task ID", errorCode = ErrorCodes.VALIDATION_ERROR)
 
-            val attachmentsDetails = taskAttachmentDetailService.getAttachmentsDetailsForTask(taskId)
+        val attachmentsDetails = taskAttachmentDetailService.getAttachmentsDetailsForTask(taskId)
 
-            call.respond(
-                HttpStatusCode.OK,
-                attachmentsDetails,
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse("Error when retrieving attachments")
-            )
-        }
+        call.respond(
+            HttpStatusCode.OK,
+            attachmentsDetails,
+        )
     }
 
     override suspend fun prepareAttachmentUpload(call: ApplicationCall) {
-        try {
-            val taskId = call.parameters["taskId"]?.toIntOrNull()
-                ?: return call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("Invalid task ID", "INVALID_TASK_ID")
-                )
+        val taskId = call.parameters["taskId"]?.toIntOrNull()
+            ?: throw ValidationException("Invalid task ID", errorCode = ErrorCodes.VALIDATION_ERROR)
 
-            val request = call.receive<PrepareTaskAttachmentUploadRequest>()
+        val request = call.receive<PrepareTaskAttachmentUploadRequest>()
 
-            val fileUploadInfo = taskAttachmentDetailService.prepareUploadForTask(
-                taskId = taskId,
-                fileName = request.fileName,
-                contentType = request.contentType,
-                fileSize = request.fileSize
-            )
+        val fileUploadInfo = taskAttachmentDetailService.prepareUploadForTask(
+            taskId = taskId,
+            fileName = request.fileName,
+            contentType = request.contentType,
+            fileSize = request.fileSize
+        )
 
-            call.respond(
-                HttpStatusCode.OK,
-                PrepareTaskAttachmentUploadResponse(
-                    uploadUrl = fileUploadInfo.uploadUrl,
-                    fileKey = fileUploadInfo.fileKey,
-                    expiresInSeconds = fileUploadInfo.expiresInSeconds
-                )
+        call.respond(
+            HttpStatusCode.OK,
+            PrepareTaskAttachmentUploadResponse(
+                uploadUrl = fileUploadInfo.uploadUrl,
+                fileKey = fileUploadInfo.fileKey,
+                expiresInSeconds = fileUploadInfo.expiresInSeconds
             )
-        } catch (e: TaskNotFoundException) {
-            call.respond(
-                HttpStatusCode.NotFound,
-                ErrorResponse(e.message ?: "Task not found", "TASK_NOT_FOUND")
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse("Error when preparing to upload an attachment")
-            )
-        }
+        )
     }
 
     override suspend fun confirmAttachmentUpload(call: ApplicationCall) {
-        try {
-            val taskId = call.parameters["taskId"]?.toIntOrNull()
-                ?: return call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("Invalid task ID", "INVALID_TASK_ID")
-                )
+        val taskId = call.parameters["taskId"]?.toIntOrNull()
+            ?: throw ValidationException("Invalid task ID", errorCode = ErrorCodes.VALIDATION_ERROR)
 
-            val request = call.receive<ConfirmTaskAttachmentUploadRequest>()
+        val request = call.receive<ConfirmTaskAttachmentUploadRequest>()
 
-            val attachmentDetail = taskAttachmentDetailService.confirmAttachmentUpload(
-                taskId = taskId,
-                fileKey = request.fileKey
-            )
+        val attachmentDetail = taskAttachmentDetailService.confirmAttachmentUpload(
+            taskId = taskId,
+            fileKey = request.fileKey
+        )
 
-            call.respond(
-                HttpStatusCode.OK,
-                attachmentDetail,
-            )
-        } catch (e: TaskNotFoundException) {
-            call.respond(
-                HttpStatusCode.NotFound,
-                ErrorResponse(e.message ?: "Task not found", "TASK_NOT_FOUND")
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse("Error when confirming attachment upload")
-            )
-        }
+        call.respond(
+            HttpStatusCode.OK,
+            attachmentDetail,
+        )
     }
 
     override suspend fun removeAttachment(call: ApplicationCall) {
-        try {
-            val attachmentId = call.parameters["attachmentId"]?.toIntOrNull()
-                ?: return call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("Invalid attachment ID", "INVALID_ATTACHMENT_ID")
-                )
+        val attachmentId = call.parameters["attachmentId"]?.toIntOrNull()
+            ?: throw ValidationException("Invalid attachment ID", errorCode = ErrorCodes.VALIDATION_ERROR)
 
-            val success = taskAttachmentDetailService.removeAttachment(attachmentId)
+        val success = taskAttachmentDetailService.removeAttachment(attachmentId)
 
-            if (success) {
-                call.respond(HttpStatusCode.NoContent)
-            } else {
-                call.respond(
-                    HttpStatusCode.NotFound,
-                    ErrorResponse("Attachment not found", "ATTACHMENT_NOT_FOUND")
-                )
-            }
-        } catch (e: Exception) {
+        if (success) {
+            call.respond(HttpStatusCode.NoContent)
+        } else {
+            // Tady by měla entita existovat, protože jinak by metoda vyhodila výjimku
+            // Takže toto by nemělo nastat, ale pro jistotu necháváme
             call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse("Error deleting attachment")
+                HttpStatusCode.NotFound,
+                ErrorResponse("Attachment not found", ErrorCodes.ENTITY_NOT_FOUND)
             )
         }
     }
 
     override suspend fun getAttachmentDownloadUrl(call: ApplicationCall) {
-        try {
-            val attachmentId = call.parameters["attachmentId"]?.toIntOrNull()
-                ?: return call.respond(
-                    HttpStatusCode.BadRequest,
-                    ErrorResponse("Invalid Attachment ID", "INVALID_ATTACHMENT_ID")
-                )
+        val attachmentId = call.parameters["attachmentId"]?.toIntOrNull()
+            ?: throw ValidationException("Invalid Attachment ID", errorCode = ErrorCodes.VALIDATION_ERROR)
 
-            val downloadUrl = taskAttachmentDetailService.generateDownloadUrlForAttachment(attachmentId)
+        val downloadUrl = taskAttachmentDetailService.generateDownloadUrlForAttachment(attachmentId)
 
-            call.respond(
-                HttpStatusCode.OK,
-                TaskAttachmentDownloadResponse(downloadUrl = downloadUrl)
-            )
-        } catch (e: AttachmentNotFoundException) {
-            call.respond(
-                HttpStatusCode.NotFound,
-                ErrorResponse(e.message ?: "Attachment not found", "ATTACHMENT_NOT_FOUND")
-            )
-        } catch (e: Exception) {
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                ErrorResponse("Error getting download URL")
-            )
-        }
+        call.respond(
+            HttpStatusCode.OK,
+            TaskAttachmentDownloadResponse(downloadUrl = downloadUrl)
+        )
     }
 }

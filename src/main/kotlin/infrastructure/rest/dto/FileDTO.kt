@@ -1,6 +1,7 @@
 package infrastructure.rest.dto
 
 import kotlinx.serialization.Serializable
+import java.util.*
 
 @Serializable
 data class FileUploadRequest(
@@ -36,5 +37,6 @@ data class FileDeleteRequest(
 @Serializable
 data class ErrorResponse(
     val message: String,
-    val code: String = "GENERAL_ERROR"
+    val code: String = "GENERAL_ERROR",
+    val traceId: String = UUID.randomUUID().toString()
 )
