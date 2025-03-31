@@ -1,7 +1,11 @@
 package infrastructure.aws.s3
 
+import aws.sdk.kotlin.runtime.auth.credentials.StaticCredentialsProvider
 import aws.sdk.kotlin.services.s3.S3Client
-import aws.sdk.kotlin.services.s3.model.*
+import aws.sdk.kotlin.services.s3.model.DeleteObjectRequest
+import aws.sdk.kotlin.services.s3.model.GetObjectRequest
+import aws.sdk.kotlin.services.s3.model.HeadObjectRequest
+import aws.sdk.kotlin.services.s3.model.PutObjectRequest
 import aws.sdk.kotlin.services.s3.presigners.presignGetObject
 import aws.sdk.kotlin.services.s3.presigners.presignPutObject
 import domain.ports.driven.FileStoragePort
@@ -14,7 +18,10 @@ import java.time.Duration
 import kotlin.time.toKotlinDuration
 
 @Single(binds = [FileStoragePort::class])
-class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
+class S3FileStorageAdapter(
+    config: ApplicationConfig,
+    private val s3ClientFactory: S3ClientFactory,
+) : FileStoragePort {
     private val logger = KotlinLogging.logger { }
 
     private val region = config.property(S3Config.AWS_REGION_PATH).getString()
@@ -23,7 +30,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
 
     override suspend fun generateUploadUrl(key: String, contentType: String, metadata: Map<String, String>): String {
         return withContext(Dispatchers.IO) {
-            S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
+            s3ClientFactory.createClient(region).use { s3Client ->
                 val request = PutObjectRequest {
                     this.bucket = bucketName
                     this.key = key
@@ -41,7 +48,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
 
     override suspend fun generateDownloadUrl(key: String): String {
         return withContext(Dispatchers.IO) {
-            S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
+            s3ClientFactory.createClient(region).use { s3Client ->
                 val request = GetObjectRequest {
                     this.bucket = bucketName
                     this.key = key
@@ -58,7 +65,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
     override suspend fun objectExists(key: String): Boolean {
         return try {
             withContext(Dispatchers.IO) {
-                S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
+                s3ClientFactory.createClient(region).use { s3Client ->
                     s3Client.headObject(HeadObjectRequest {
                         this.bucket = bucketName
                         this.key = key
@@ -74,7 +81,7 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
     override suspend fun deleteObject(key: String): Boolean {
         return try {
             withContext(Dispatchers.IO) {
-                S3Client.fromEnvironment { region = this@S3FileStorageAdapter.region }.use { s3Client ->
+                s3ClientFactory.createClient(region).use { s3Client ->
                     s3Client.deleteObject(
                         DeleteObjectRequest {
                             this.bucket = bucketName
@@ -87,6 +94,26 @@ class S3FileStorageAdapter(config: ApplicationConfig) : FileStoragePort {
         } catch (e: Exception) {
             logger.error { "Failed to delete object with key $key: ${e.message}" }
             false
+        }
+    }
+}
+
+interface S3ClientFactory {
+    fun createClient(region: String): S3Client
+}
+
+@Single(binds = [S3ClientFactory::class])
+class ConfigBasedS3ClientFactory(private val config: ApplicationConfig) : S3ClientFactory {
+    private val accessKey = config.property(S3Config.AWS_ACCESS_KEY_PATH).getString()
+    private val secretKey = config.property(S3Config.AWS_SECRET_KEY_PATH).getString()
+
+    override fun createClient(region: String): S3Client {
+        return S3Client {
+            this.region = region
+            this.credentialsProvider = StaticCredentialsProvider {
+                accessKeyId = accessKey
+                secretAccessKey = secretKey
+            }
         }
     }
 }
