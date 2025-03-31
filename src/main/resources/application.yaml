@@ -9,8 +9,8 @@ ktor:
         s3:
             region: "eu-north-1"
             bucketName: "tasklearningbucket"
-            accessKey: "$AWS_ACCESS_KEY"
-            secretKey: "$AWS_SECRET_KEY"
+            accessKey: "$AWS_ACCESS_KEY_ID"
+            secretKey: "$AWS_SECRET_ACCESS_KEY"
             urlExpirationSeconds: 3600
 
 database:
