@@ -2,6 +2,7 @@ package application.services
 
 import application.exceptions.BusinessRuleViolationException
 import common.exceptions.ErrorCodes
+import domain.exceptions.EntityNotFoundException
 import domain.exceptions.ValidationException
 import domain.model.Priority
 import domain.model.Task
@@ -30,6 +31,10 @@ class TaskServiceImpl(
 
     override suspend fun taskByName(name: String): Task? {
         return repository.taskByName(name)
+    }
+
+    override suspend fun taskById(id: Int): Task {
+        return repository.taskById(id) ?: throw EntityNotFoundException("Task", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
     }
 
     override suspend fun addTask(command: CreateTaskCommand): Task {

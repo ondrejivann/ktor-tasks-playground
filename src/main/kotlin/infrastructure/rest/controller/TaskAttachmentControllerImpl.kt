@@ -33,7 +33,7 @@ class TaskAttachmentControllerImpl(
 
         val request = call.receive<PrepareTaskAttachmentUploadRequest>()
 
-        val fileUploadInfo = taskAttachmentDetailService.prepareUploadForTask(
+        val taskAttachmentUploadInfo = taskAttachmentDetailService.prepareUploadForTask(
             taskId = taskId,
             fileName = request.fileName,
             contentType = request.contentType,
@@ -43,9 +43,10 @@ class TaskAttachmentControllerImpl(
         call.respond(
             HttpStatusCode.OK,
             PrepareTaskAttachmentUploadResponse(
-                uploadUrl = fileUploadInfo.uploadUrl,
-                fileKey = fileUploadInfo.fileKey,
-                expiresInSeconds = fileUploadInfo.expiresInSeconds
+                id = taskAttachmentUploadInfo.id,
+                uploadUrl = taskAttachmentUploadInfo.uploadUrl,
+                fileKey = taskAttachmentUploadInfo.fileKey,
+                expiresInSeconds = taskAttachmentUploadInfo.expiresInSeconds
             )
         )
     }

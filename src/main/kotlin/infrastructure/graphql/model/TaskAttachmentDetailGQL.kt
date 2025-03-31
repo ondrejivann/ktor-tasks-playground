@@ -4,7 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import domain.model.TaskAttachment
 
 @GraphQLDescription("Attachment (image or other file)")
-data class TaskAttachmentGQL(
+data class TaskAttachmentDetailGQL(
     @GraphQLDescription("Id")
     val id: String,
     @GraphQLDescription("Name of the file")
@@ -15,8 +15,8 @@ data class TaskAttachmentGQL(
     val downloadUrl: String
 )
 
-fun TaskAttachment.toGQL(downloadUrl: String): TaskAttachmentGQL {
-    return TaskAttachmentGQL(
+fun TaskAttachment.toGQL(downloadUrl: String): TaskAttachmentDetailGQL {
+    return TaskAttachmentDetailGQL(
         id = this.id.toString(),
         fileName = this.fileName,
         contentType = this.contentType,

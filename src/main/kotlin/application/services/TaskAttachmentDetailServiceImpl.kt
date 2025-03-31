@@ -5,8 +5,8 @@ import common.exceptions.ErrorCodes
 import domain.exceptions.EntityNotFoundException
 import domain.model.TaskAttachment
 import domain.model.TaskAttachmentDetail
+import domain.model.TaskAttachmentUploadInfo
 import domain.model.UploadStatus
-import domain.model.file.FileUploadInfo
 import domain.ports.driven.TaskRepository
 import domain.ports.driving.FileService
 import domain.ports.driving.TaskAttachmentDetailService
@@ -40,7 +40,7 @@ class TaskAttachmentDetailServiceImpl(
         fileName: String,
         contentType: String,
         fileSize: Int
-    ): FileUploadInfo {
+    ): TaskAttachmentUploadInfo {
         taskRepository.taskById(taskId)
             ?: throw EntityNotFoundException("Task", taskId, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
@@ -54,9 +54,14 @@ class TaskAttachmentDetailServiceImpl(
             uploadStatus = UploadStatus.PENDING,
         )
 
-        taskAttachmentService.addTaskAttachment(attachment)
+        val taskAttachment = taskAttachmentService.addTaskAttachment(attachment)
 
-        return uploadInfo
+        return TaskAttachmentUploadInfo(
+            id = taskAttachment.id,
+            fileKey = uploadInfo.fileKey,
+            uploadUrl = uploadInfo.uploadUrl,
+            expiresInSeconds = uploadInfo.expiresInSeconds,
+        )
     }
 
     override suspend fun confirmAttachmentUpload(taskId: Int, fileKey: String): TaskAttachmentDetail {

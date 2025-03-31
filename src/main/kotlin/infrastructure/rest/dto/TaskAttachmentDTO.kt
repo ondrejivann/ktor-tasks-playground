@@ -19,9 +19,10 @@ data class PrepareTaskAttachmentUploadRequest(
 
 @Serializable
 data class PrepareTaskAttachmentUploadResponse(
+    val id: Int,
     val uploadUrl: String,
     val fileKey: String,
-    val expiresInSeconds: Int
+    val expiresInSeconds: Int,
 )
 
 @Serializable

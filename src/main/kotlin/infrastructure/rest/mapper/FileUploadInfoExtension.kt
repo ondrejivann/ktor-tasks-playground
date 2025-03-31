@@ -1,10 +1,11 @@
 package infrastructure.rest.mapper
 
-import domain.model.file.FileUploadInfo
+import domain.model.TaskAttachmentUploadInfo
 import infrastructure.rest.dto.PrepareTaskAttachmentUploadResponse
 
-fun FileUploadInfo.toPrepareTaskAttachmentUploadResponse(): PrepareTaskAttachmentUploadResponse =
+fun TaskAttachmentUploadInfo.toPrepareTaskAttachmentUploadResponse(): PrepareTaskAttachmentUploadResponse =
     PrepareTaskAttachmentUploadResponse(
+        id = id,
         uploadUrl = uploadUrl,
         fileKey = fileKey,
         expiresInSeconds = expiresInSeconds,

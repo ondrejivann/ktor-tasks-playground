@@ -1,11 +1,17 @@
 package application.services
 
+import domain.filter.SortDirection
+import domain.filter.TaskFilter
+import domain.filter.TaskSortField
 import domain.model.Priority
 import domain.model.TaskAttachmentDetail
 import domain.model.TaskDetail
 import domain.model.command.CreateTaskCommand
 import domain.model.command.CreateTaskCommandResponse
-import domain.ports.driving.*
+import domain.ports.driving.FileService
+import domain.ports.driving.TaskAttachmentDetailService
+import domain.ports.driving.TaskDetailService
+import domain.ports.driving.TaskService
 import infrastructure.rest.mapper.toPrepareTaskAttachmentUploadResponse
 import org.koin.core.annotation.Single
 
@@ -15,10 +21,70 @@ class TaskDetailServiceImpl(
     private val taskAttachmentDetailService: TaskAttachmentDetailService,
     private val fileService: FileService,
 ) : TaskDetailService {
-    override suspend fun getAllTasks(): List<TaskDetail> {
-        return taskService.allTasks().map {
-            mapToTaskDetail(it)
+    override suspend fun getAllTasks(filter: TaskFilter?): List<TaskDetail> {
+        val allTasks = if (filter?.priority != null) {
+            taskService.tasksByPriority(filter.priority)
+        } else {
+            taskService.allTasks()
         }
+
+        var filteredTasks = allTasks.map { task ->
+            mapToTaskDetail(task)
+        }
+
+        // Apply filters
+        if (filter != null) {
+            if (filter.statusCode != null) {
+                filteredTasks = filteredTasks.filter {
+                    it.status.code == filter.statusCode
+                }
+            }
+
+            if (filter.nameContains != null) {
+                filteredTasks = filteredTasks.filter {
+                    it.name.contains(filter.nameContains, ignoreCase = true)
+                }
+            }
+
+            if (filter.descriptionContains != null) {
+                filteredTasks = filteredTasks.filter {
+                    it.description.contains(filter.descriptionContains, ignoreCase = true)
+                }
+            }
+
+            if (filter.searchText != null) {
+                filteredTasks = filteredTasks.filter { task ->
+                    task.name.contains(filter.searchText, ignoreCase = true) ||
+                            task.description.contains(filter.searchText, ignoreCase = true)
+                }
+            }
+
+            // Apply sorting
+            if (filter.sortBy != null) {
+                filteredTasks = when (filter.sortBy) {
+                    TaskSortField.NAME -> {
+                        if (filter.sortDirection == SortDirection.ASC)
+                            filteredTasks.sortedBy { it.name }
+                        else
+                            filteredTasks.sortedByDescending { it.name }
+                    }
+                    TaskSortField.PRIORITY -> {
+                        if (filter.sortDirection == SortDirection.ASC)
+                            filteredTasks.sortedBy { it.priority.ordinal }
+                        else
+                            filteredTasks.sortedByDescending { it.priority.ordinal }
+                    }
+                    TaskSortField.STATUS -> {
+                        if (filter.sortDirection == SortDirection.ASC)
+                            filteredTasks.sortedBy { it.status.code }
+                        else
+                            filteredTasks.sortedByDescending { it.status.code }
+                    }
+                }
+            }
+        }
+
+        return filteredTasks
     }
 
     override suspend fun getTaskDetailByPriority(priority: Priority): List<TaskDetail> {
@@ -29,6 +95,12 @@ class TaskDetailServiceImpl(
 
     override suspend fun getTaskByName(name: String): TaskDetail? {
         return taskService.taskByName(name)?.let {
+            mapToTaskDetail(it)
+        }
+    }
+
+    override suspend fun getTaskById(id: Int): TaskDetail? {
+        return taskService.taskById(id)?.let {
             mapToTaskDetail(it)
         }
     }
