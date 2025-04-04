@@ -19,57 +19,19 @@ class TaskMutations(
     }
 
     suspend fun updateTaskStatus(name: String, statusCode: String): TaskStatusUpdateResultGQL {
-        return try {
-            val success = taskDetailService.updateTaskStatus(name, statusCode)
-            if (success) {
-                TaskStatusUpdateResultGQL(
-                    success = true,
-                    message = "Task status updated successfully"
-                )
-            } else {
-                TaskStatusUpdateResultGQL(
-                    success = false,
-                    message = "Task or status not found"
-                )
-            }
-        } catch (e: IllegalArgumentException) {
-            TaskStatusUpdateResultGQL(
-                success = false,
-                message = "Invalid input: ${e.message}"
-            )
-        } catch (e: Exception) {
-            TaskStatusUpdateResultGQL(
-                success = false,
-                message = "Failed to update task status: ${e.message}"
-            )
-        }
+        taskDetailService.updateTaskStatus(name, statusCode)
+        return TaskStatusUpdateResultGQL(
+            success = true,
+            message = "Task status updated successfully"
+        )
     }
 
     suspend fun removeTask(name: String): TaskOperationResultGQL {
-        return try {
-            val success = taskDetailService.removeTask(name)
-            if (success) {
-                TaskOperationResultGQL(
-                    success = true,
-                    message = "Task successfully removed"
-                )
-            } else {
-                TaskOperationResultGQL(
-                    success = false,
-                    message = "Task not found"
-                )
-            }
-        } catch (e: IllegalArgumentException) {
-            TaskOperationResultGQL(
-                success = false,
-                message = "Invalid input: ${e.message}"
-            )
-        } catch (e: Exception) {
-            TaskOperationResultGQL(
-                success = false,
-                message = "Failed to remove task: ${e.message}"
-            )
-        }
+        taskDetailService.removeTask(name)
+        return TaskOperationResultGQL(
+            success = true,
+            message = "Task successfully removed"
+        )
     }
 
     private fun CreateTaskCommandGQL.toDomain() = CreateTaskCommand(

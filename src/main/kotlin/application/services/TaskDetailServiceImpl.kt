@@ -1,5 +1,7 @@
 package application.services
 
+import common.exceptions.ErrorCodes
+import domain.exceptions.EntityNotFoundException
 import domain.filter.SortDirection
 import domain.filter.TaskFilter
 import domain.filter.TaskSortField
@@ -129,7 +131,8 @@ class TaskDetailServiceImpl(
     }
 
     override suspend fun removeTask(name: String): Boolean {
-        val task = taskService.taskByName(name) ?: return false
+        val task = taskService.taskByName(name)
+            ?: throw EntityNotFoundException("Task", name, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         task.attachments.forEach { attachment ->
             taskAttachmentDetailService.removeAttachment(attachment.id)

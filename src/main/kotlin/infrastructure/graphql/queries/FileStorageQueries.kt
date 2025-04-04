@@ -9,18 +9,10 @@ class FileStorageQueries(
     private val fileService: FileService,
 ) {
     suspend fun checkFileExists(fileKey: String): FileExistenceResultGQL {
-        return try {
-            val exists = fileService.checkFileExists(fileKey)
-            FileExistenceResultGQL(
-                exists = exists,
-                fileKey = fileKey
-            )
-        } catch (e: Exception) {
-            FileExistenceResultGQL(
-                exists = false,
-                fileKey = fileKey,
-                errorMessage = e.message
-            )
-        }
+        val exists = fileService.checkFileExists(fileKey)
+        return FileExistenceResultGQL(
+            exists = exists,
+            fileKey = fileKey
+        )
     }
 }

@@ -1,5 +1,6 @@
 package infrastructure.graphql.model
 
+import com.expediagroup.graphql.generator.scalars.ID
 import domain.model.TaskAttachmentDetail
 import domain.model.TaskAttachmentUploadInfo
 
@@ -36,7 +37,7 @@ data class TaskAttachmentDownloadResponseGQL(
 
 fun TaskAttachmentDetail.toGQL(): TaskAttachmentDetailGQL =
     TaskAttachmentDetailGQL(
-        id = id.toString(),
+        id = ID(id.toString()),
         fileName = fileName,
         contentType = contentType,
         downloadUrl = downloadUrl

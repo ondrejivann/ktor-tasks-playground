@@ -60,14 +60,6 @@ fun domain.model.TaskDetail.toGQL(): TaskGQL =
         attachments = attachments.map { it.toGQL() }
     )
 
-fun domain.model.TaskAttachmentDetail.toGQL(): TaskAttachmentDetailGQL =
-    TaskAttachmentDetailGQL(
-        id = id.toString(),
-        fileName = fileName,
-        contentType = contentType,
-        downloadUrl = downloadUrl
-    )
-
 fun TaskFilterGQL.toDomain(): TaskFilter {
     return TaskFilter(
         priority = priority?.toDomain(),
