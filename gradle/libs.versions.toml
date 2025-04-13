@@ -14,6 +14,7 @@ ksp-version = "2.0.21-1.0.28"
 kotlin-logging-version = "7.0.5"
 flyway-version = "11.4.0"
 hikari-version = "6.2.1"
+jwt-version = "4.5.0"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -60,6 +61,14 @@ flywaydb-flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "fly
 flywaydb-flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway-version" }
 
 hikari-pool = { module = "com.zaxxer:HikariCP", version.ref = "hikari-version" }
+
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor-version" }
+ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor-version" }
+ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = "ktor-version" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor-version" }
+ktor-client-apache = { module = "io.ktor:ktor-client-apache", version.ref = "ktor-version" }
+jwt-auth0 = { module = "com.auth0:java-jwt", version.ref = "jwt-version" }
+
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }

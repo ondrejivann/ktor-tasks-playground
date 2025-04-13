@@ -62,8 +62,19 @@ dependencies {
     // Flyway migrations
     implementation(libs.flywaydb.flyway.core)
     implementation(libs.flywaydb.flyway.database.postgresql)
+
     // Hikari pool
     implementation(libs.hikari.pool)
+
+    // Auth
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.auth.jwt)
+    implementation(libs.ktor.server.sessions)
+    implementation(libs.jwt.auth0)
+
+    // OAuth client
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.apache)
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
