@@ -66,6 +66,12 @@ dependencies {
     // Hikari pool
     implementation(libs.hikari.pool)
 
+    // AWS S3
+    implementation(libs.aws.sdk.kotlin)
+
+    // Dotenv
+    implementation(libs.dotenv.kotlin)
+
     // Auth
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)

@@ -1,6 +1,5 @@
 package infrastructure.persistence.dao
 
-import domain.model.Task
 import infrastructure.persistence.table.TaskTable
 import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
@@ -17,11 +16,3 @@ class TaskDAO(id: EntityID<Int>) : IntEntity(id) {
     var createdAt by TaskTable.createdAt
     var updatedAt by TaskTable.updatedAt
 }
-
-fun taskDaoToModel(dao: TaskDAO) = Task(
-    id = dao.id.value,
-    name = dao.name,
-    description = dao.description,
-    priority = dao.priority,
-    status = dao.status.taskStatusDaoToModel()
-)

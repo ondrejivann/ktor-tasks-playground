@@ -1,11 +1,15 @@
 package application.services
 
+import application.exceptions.BusinessRuleViolationException
+import common.exceptions.ErrorCodes
+import domain.exceptions.EntityNotFoundException
+import domain.exceptions.ValidationException
 import domain.model.Priority
 import domain.model.Task
 import domain.model.command.CreateTaskCommand
-import domain.ports.TaskRepository
-import domain.ports.TaskService
-import domain.ports.TaskStatusService
+import domain.ports.driven.TaskRepository
+import domain.ports.driving.TaskService
+import domain.ports.driving.TaskStatusService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 
@@ -29,7 +33,11 @@ class TaskServiceImpl(
         return repository.taskByName(name)
     }
 
-    override suspend fun addTask(command: CreateTaskCommand) {
+    override suspend fun taskById(id: Int): Task {
+        return repository.taskById(id) ?: throw EntityNotFoundException("Task", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
+    }
+
+    override suspend fun addTask(command: CreateTaskCommand): Task {
         logger.debug { "Creating new task: ${command.name}" }
 
         validateTaskName(command.name)
@@ -43,14 +51,20 @@ class TaskServiceImpl(
             description = command.description.trim(),
             priority = command.priority,
             status = defaultStatus,
+            attachments = emptyList(),
         )
 
         try {
-            repository.addTask(task)
-            logger.info { "Task '${task.name}' created successfully" }
+            return repository.addTask(task).also {
+                logger.info { "Task '${task.name}' created successfully" }
+            }
         } catch (e: IllegalStateException) {
             logger.error { "Failed to create task: ${e.message}" }
-            throw TaskCreationException("Failed to create task: ${e.message}", e)
+            throw BusinessRuleViolationException(
+                message = "Failed to create task: ${e.message}",
+                cause = e,
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+            )
         }
     }
 
@@ -63,13 +77,19 @@ class TaskServiceImpl(
 
         if (name.isBlank()) {
             logger.warn { "Cannot update status: task name is blank" }
-            throw IllegalArgumentException("Task name cannot be empty")
+            throw ValidationException(
+                message = "Task name cannot be empty",
+                errorCode = ErrorCodes.VALIDATION_ERROR
+            )
         }
 
         val status = statusService.getStatusByCode(statusCode)
         if (status == null) {
             logger.warn { "Cannot update status: status code '$statusCode' not found" }
-            throw IllegalArgumentException("Status with code '$statusCode' not found")
+            throw ValidationException(
+                message = "Status with code '$statusCode' not found",
+                errorCode = ErrorCodes.VALIDATION_ERROR
+            )
         }
 
         try {
@@ -82,29 +102,41 @@ class TaskServiceImpl(
             return result
         } catch (e: Exception) {
             logger.error(e) { "Failed to update task status: ${e.message}" }
-            throw TaskUpdateException("Failed to update task status: ${e.message}", e)
+            throw BusinessRuleViolationException(
+                message = "Failed to update task status: ${e.message}",
+                cause = e,
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+            )
         }
     }
 
     private fun validateTaskName(name: String) {
         if (name.isBlank()) {
-            throw TaskValidationException("Task name cannot be empty")
+            throw ValidationException(
+                message = "Task name cannot be empty",
+                errorCode = ErrorCodes.VALIDATION_ERROR
+            )
         }
         if (name.length > 128) {
-            throw TaskValidationException("Task name cannot be longer than 128 characters")
+            throw ValidationException(
+                message = "Task name cannot be longer than 128 characters",
+                errorCode = ErrorCodes.VALIDATION_ERROR
+            )
         }
     }
 
     private fun validateTaskDescription(description: String) {
         if (description.isBlank()) {
-            throw TaskValidationException("Task description cannot be empty")
+            throw ValidationException(
+                message = "Task description cannot be empty",
+                errorCode = ErrorCodes.VALIDATION_ERROR
+            )
         }
         if (description.length > 1024) {
-            throw TaskValidationException("Task description cannot be longer than 1024 characters")
+            throw ValidationException(
+                message = "Task description cannot be longer than 1024 characters",
+                errorCode = ErrorCodes.VALIDATION_ERROR
+            )
         }
     }
 }
-
-class TaskValidationException(message: String) : IllegalArgumentException(message)
-class TaskCreationException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-class TaskUpdateException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

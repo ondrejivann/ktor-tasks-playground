@@ -2,7 +2,9 @@ package infrastructure.rest.controller
 
 import domain.model.Priority
 import domain.model.command.CreateTaskCommand
-import domain.ports.TaskService
+import domain.ports.driving.TaskDetailService
+import infrastructure.rest.mapper.toTaskResponse
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.server.application.*
@@ -12,11 +14,15 @@ import org.koin.core.annotation.Single
 
 @Single(binds = [TaskController::class])
 class TaskControllerImpl(
-    private val taskService: TaskService,
+    private val taskDetailService: TaskDetailService,
 ): TaskController {
 
+    private val logger = KotlinLogging.logger {}
+
     override suspend fun getAllTasks(call: ApplicationCall) {
-        val tasks = taskService.allTasks()
+        val tasks = taskDetailService
+            .getAllTasks()
+            .map{ it.toTaskResponse() }
         call.respond(tasks)
     }
 
@@ -24,10 +30,10 @@ class TaskControllerImpl(
         val name = call.parameters["taskName"]
             ?: return call.respond(HttpStatusCode.BadRequest)
 
-        val task = taskService.taskByName(name)
+        val task = taskDetailService.getTaskByName(name)
             ?: return call.respond(HttpStatusCode.NotFound)
 
-        call.respond(task)
+        call.respond(task.toTaskResponse())
     }
 
     override suspend fun getTasksByPriority(call: ApplicationCall) {
@@ -36,7 +42,9 @@ class TaskControllerImpl(
 
         try {
             val priority = Priority.valueOf(priorityAsText)
-            val tasks = taskService.tasksByPriority(priority)
+            val tasks = taskDetailService
+                .getTaskDetailByPriority(priority)
+                .map { it.toTaskResponse() }
 
             if (tasks.isEmpty()) {
                 call.respond(HttpStatusCode.NotFound)
@@ -51,8 +59,8 @@ class TaskControllerImpl(
     override suspend fun createTask(call: ApplicationCall) {
         try {
             val task = call.receive<CreateTaskCommand>()
-            taskService.addTask(task)
-            call.respond(HttpStatusCode.NoContent)
+            val createCommandTaskResponse = taskDetailService.addTask(task)
+            call.respond(HttpStatusCode.OK, createCommandTaskResponse,)
         } catch (ex: IllegalStateException) {
             call.respond(HttpStatusCode.BadRequest)
         } catch (ex: JsonConvertException) {
@@ -70,7 +78,7 @@ class TaskControllerImpl(
         }
 
         try {
-            val success = taskService.updateTaskStatus(taskName, statusCode)
+            val success = taskDetailService.updateTaskStatus(taskName, statusCode)
             if (success) {
                 call.respond(HttpStatusCode.NoContent)
             } else {
@@ -85,7 +93,7 @@ class TaskControllerImpl(
         val name = call.parameters["taskName"]
             ?: return call.respond(HttpStatusCode.BadRequest)
 
-        if (taskService.removeTask(name)) {
+        if (taskDetailService.removeTask(name)) {
             call.respond(HttpStatusCode.NoContent)
         } else {
             call.respond(HttpStatusCode.NotFound)

@@ -99,30 +99,68 @@
                 const statusColor = getStatusColor(t.status?.code || 'pending');
                 const createdAt = formatDate(t.createdAt);
                 const updatedAt = formatDate(t.updatedAt);
-                
-                taskDisplay().innerHTML = `
-                    <div class="space-y-3">
-                        <div>
-                            <span class="font-medium ${priorityColor}">${t.priority}</span> prioritní úkol 
-                            <span class="font-bold">${t.name}</span>
-                        </div>
-                        <div class="text-gray-600 dark:text-gray-400">
-                            <span class="font-medium">Popis:</span> 
-                            <span class="italic">"${t.description}"</span>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
-                            <span class="px-2 py-1 rounded-full text-sm ${statusColor}">
-                                ${t.status?.name || 'Čeká na zpracování'}
-                            </span>
-                        </div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">
-                            <div>Vytvořeno: ${createdAt}</div>
-                            <div>Aktualizováno: ${updatedAt}</div>
+
+                // Vytvoření HTML pro přílohy
+                let attachmentsHtml = '';
+                if (t.attachments && t.attachments.length > 0) {
+                    attachmentsHtml = `
+                    <div class="mt-4">
+                        <span class="font-medium text-gray-600 dark:text-gray-400">Přílohy:</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                            ${t.attachments.map(attachment => {
+                        if (isImageAttachment(attachment.contentType)) {
+                            return `
+                                        <div class="border dark:border-dark-300 rounded-md p-2">
+                                            <img src="${attachment.downloadUrl}" alt="${attachment.fileName}"
+                                                class="w-full h-32 object-cover rounded-md mb-2">
+                                            <div class="text-sm text-gray-600 dark:text-gray-400 truncate">${attachment.fileName}</div>
+                                        </div>
+                                    `;
+                        } else {
+                            return `
+                                        <div class="border dark:border-dark-300 rounded-md p-2 flex flex-col">
+                                            <div class="text-4xl text-center mb-2">📄</div>
+                                            <a href="${attachment.downloadUrl}" target="_blank"
+                                                class="text-sm text-blue-600 dark:text-blue-400 hover:underline truncate">
+                                                ${attachment.fileName}
+                                            </a>
+                                        </div>
+                                    `;
+                        }
+                    }).join('')}
                         </div>
                     </div>
                 `;
+                }
+
+                taskDisplay().innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <span class="font-medium ${priorityColor}">${t.priority}</span> prioritní úkol
+                        <span class="font-bold">${t.name}</span>
+                    </div>
+                    <div class="text-gray-600 dark:text-gray-400">
+                        <span class="font-medium">Popis:</span>
+                        <span class="italic">"${t.description}"</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                        <span class="px-2 py-1 rounded-full text-sm ${statusColor}">
+                            ${t.status?.name || 'Čeká na zpracování'}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        <div>Vytvořeno: ${createdAt}</div>
+                        <div>Aktualizováno: ${updatedAt}</div>
+                    </div>
+                    ${attachmentsHtml}
+                </div>
+            `;
             })
+        }
+
+        function isImageAttachment(contentType) {
+            return contentType && contentType.startsWith('image/');
         }
 
         function formatDate(dateString) {

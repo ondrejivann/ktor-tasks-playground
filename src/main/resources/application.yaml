@@ -5,6 +5,14 @@ ktor:
     deployment:
         port: 8080
 
+    aws:
+        s3:
+            region: "eu-north-1"
+            bucketName: "tasklearningbucket"
+            accessKey: "$AWS_ACCESS_KEY_ID"
+            secretKey: "$AWS_SECRET_ACCESS_KEY"
+            urlExpirationSeconds: 3600
+
 database:
     driverClassName: org.postgresql.Driver
     jdbcURL: "jdbc:postgresql://localhost:5432/ktor_todo_db"
