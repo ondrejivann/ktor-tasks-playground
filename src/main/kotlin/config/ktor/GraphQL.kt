@@ -6,6 +6,8 @@ import com.expediagroup.graphql.server.Schema
 import com.expediagroup.graphql.server.ktor.GraphQL
 import infrastructure.graphql.RootMutation
 import infrastructure.graphql.RootQuery
+import infrastructure.graphql.exceptions.GraphQLExceptionHandler
+import io.ktor.client.request.forms.*
 import io.ktor.server.application.*
 import org.koin.ktor.ext.inject
 
@@ -20,6 +22,9 @@ fun Application.configureGraphQL() {
             queries = listOf(rootQuery)
             mutations = listOf(rootMutation)
             schemaObject = MySchema()
+        }
+        engine {
+            exceptionHandler = GraphQLExceptionHandler()
         }
     }
 }

@@ -65,6 +65,12 @@ dependencies {
     // Hikari pool
     implementation(libs.hikari.pool)
 
+    // AWS S3
+    implementation(libs.aws.sdk.kotlin)
+
+    // Dotenv
+    implementation(libs.dotenv.kotlin)
+
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.ktor.client.content.negotiation)

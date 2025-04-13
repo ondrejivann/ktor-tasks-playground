@@ -14,6 +14,8 @@ ksp-version = "2.0.21-1.0.28"
 kotlin-logging-version = "7.0.5"
 flyway-version = "11.4.0"
 hikari-version = "6.2.1"
+aws-sdk-kotlin-version = "1.4.45"
+dotenv-kotlin-version = "6.5.1"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -60,6 +62,10 @@ flywaydb-flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "fly
 flywaydb-flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway-version" }
 
 hikari-pool = { module = "com.zaxxer:HikariCP", version.ref = "hikari-version" }
+
+aws-sdk-kotlin = { module = "aws.sdk.kotlin:s3", version.ref = "aws-sdk-kotlin-version" }
+
+dotenv-kotlin = { module = "io.github.cdimascio:dotenv-kotlin", version.ref = "dotenv-kotlin-version" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }

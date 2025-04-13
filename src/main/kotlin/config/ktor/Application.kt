@@ -14,8 +14,6 @@ fun main(args: Array<String>) {
         }).start(wait = true)
 }
 
-private val logger = KotlinLogging.logger {}
-
 fun Application.module() {
     logger.info { "Ktor is starting..." }
     configureKoin()
@@ -27,3 +25,5 @@ fun Application.module() {
     configureOpenAPI()
     configureCallLogging()
 }
+
+private val logger = KotlinLogging.logger {}

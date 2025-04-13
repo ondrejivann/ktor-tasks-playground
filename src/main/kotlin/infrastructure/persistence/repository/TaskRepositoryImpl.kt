@@ -2,15 +2,16 @@ package infrastructure.persistence.repository
 
 import domain.model.Priority
 import domain.model.Task
-import domain.ports.TaskRepository
+import domain.ports.driven.TaskRepository
+import infrastructure.persistence.common.suspendTransaction
 import infrastructure.persistence.dao.TaskDAO
 import infrastructure.persistence.dao.TaskStatusDAO
 import infrastructure.persistence.mappers.taskDaoToModelWithStatus
-import infrastructure.persistence.common.suspendTransaction
 import infrastructure.persistence.table.TaskStatusTable
 import infrastructure.persistence.table.TaskTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Union
 import org.jetbrains.exposed.sql.deleteWhere
 import org.koin.core.annotation.Single
 import java.time.LocalDateTime
@@ -37,8 +38,12 @@ class TaskRepositoryImpl : TaskRepository {
             .firstOrNull()
     }
 
-    override suspend fun addTask(task: Task): Unit = suspendTransaction {
-        TaskDAO.new {
+    override suspend fun taskById(id: Int): Task? = suspendTransaction {
+        TaskDAO.findById(id)?.let(::taskDaoToModelWithStatus)
+    }
+
+    override suspend fun addTask(task: Task): Task = suspendTransaction {
+        val newTask = TaskDAO.new {
             name = task.name
             description = task.description
             priority = task.priority
@@ -46,6 +51,7 @@ class TaskRepositoryImpl : TaskRepository {
             createdAt = LocalDateTime.now()
             updatedAt = LocalDateTime.now()
         }
+        taskDaoToModelWithStatus(newTask)
     }
 
     override suspend fun updateTask(name: String, task: Task): Boolean = suspendTransaction {
