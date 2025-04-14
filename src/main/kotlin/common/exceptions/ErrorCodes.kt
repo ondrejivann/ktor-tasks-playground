@@ -18,6 +18,12 @@ object ErrorCodes {
     const val EXTERNAL_SERVICE_ERROR = "EXTERNAL_SERVICE_ERROR"
     const val FILE_STORAGE_ERROR = "FILE_STORAGE_ERROR"
 
+    // Auth related errors
+    const val AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR"
+    const val INVALID_CREDENTIALS = "INVALID_CREDENTIALS"
+    const val TOKEN_EXPIRED = "TOKEN_EXPIRED"
+    const val INVALID_TOKEN = "INVALID_TOKEN"
+
     // General errors
     const val INTERNAL_ERROR = "INTERNAL_ERROR"
 }

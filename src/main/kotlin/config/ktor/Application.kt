@@ -19,6 +19,7 @@ fun Application.module() {
     configureKoin()
     configureCORS()
     configureDatabases()
+    configureAuth()
     configureGraphQL()
     configureRouting()
     configureStatusPages()
