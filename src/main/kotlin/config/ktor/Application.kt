@@ -16,14 +16,17 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     logger.info { "Ktor is starting..." }
+    /*
+    https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
+     */
+    //configureContentNegotiation()
+    configureStatusPages()
     configureKoin()
     configureCORS()
     configureDatabases()
     configureAuth()
     configureGraphQL()
-    // configureContentNegotiation()
     configureRouting()
-    configureStatusPages()
     configureOpenAPI()
     configureCallLogging()
 }

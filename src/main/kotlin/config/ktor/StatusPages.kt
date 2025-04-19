@@ -9,17 +9,16 @@ import domain.exceptions.EntityNotFoundException
 import domain.exceptions.ValidationException
 import infrastructure.exceptions.InfrastructureException
 import infrastructure.rest.dto.ErrorResponse
+import infrastructure.rest.utils.KotlinSerializationUtils.respondObject
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import java.util.*
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
-        // defaultGraphQLStatusPages()
         exception<ValidationException> { call, cause ->
             call.respondWithLogging(
                 status = HttpStatusCode.BadRequest,
@@ -107,7 +106,9 @@ private suspend fun ApplicationCall.respondWithLogging(
 
     logger.error("Exception occurred: [traceId: $traceId, code: $errorCode] ${cause.message}", cause)
 
-    this.respond(
+    // Custom serialization because I cant use ContentNegotiation globally.
+    // https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
+    this.respondObject(
         status,
         ErrorResponse(
             message = message ?: "An error occurred",

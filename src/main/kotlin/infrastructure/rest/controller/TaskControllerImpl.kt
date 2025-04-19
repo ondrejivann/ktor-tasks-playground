@@ -23,7 +23,7 @@ class TaskControllerImpl(
         val tasks = taskDetailService
             .getAllTasks()
             .map{ it.toTaskResponse() }
-        call.respond(tasks)
+        call.respond(HttpStatusCode.OK, tasks)
     }
 
     override suspend fun getTaskByName(call: ApplicationCall) {
@@ -33,7 +33,7 @@ class TaskControllerImpl(
         val task = taskDetailService.getTaskByName(name)
             ?: return call.respond(HttpStatusCode.NotFound)
 
-        call.respond(task.toTaskResponse())
+        call.respond(HttpStatusCode.OK, task.toTaskResponse())
     }
 
     override suspend fun getTasksByPriority(call: ApplicationCall) {
@@ -49,7 +49,7 @@ class TaskControllerImpl(
             if (tasks.isEmpty()) {
                 call.respond(HttpStatusCode.NotFound)
             } else {
-                call.respond(tasks)
+                call.respond(HttpStatusCode.OK, tasks)
             }
         } catch (ex: IllegalArgumentException) {
             call.respond(HttpStatusCode.BadRequest)

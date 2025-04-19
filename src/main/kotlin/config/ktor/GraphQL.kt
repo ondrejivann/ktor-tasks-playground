@@ -21,13 +21,13 @@ fun Application.configureGraphQL() {
     val customContextFactory: GraphQLContextFactory by inject()
     val authDirectiveWiringFactory = AuthDirectiveWiringFactory()
 
-    // Vytvoříme custom hooks pro direktiv
     val customHooks = object : SchemaGeneratorHooks {
         override val wiringFactory: KotlinDirectiveWiringFactory
             get() = authDirectiveWiringFactory
     }
 
     install(GraphQL) {
+
         schema {
             packages = listOf("infrastructure.graphql")
             queries = listOf(rootQuery)

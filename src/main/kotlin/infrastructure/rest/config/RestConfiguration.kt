@@ -10,7 +10,6 @@ import infrastructure.rest.route.fileRoutes
 import infrastructure.rest.route.taskAttachmentRoutes
 import infrastructure.rest.route.taskRoutes
 import io.ktor.server.auth.*
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.routing.*
 
 fun Route.configureRestRoutes(
