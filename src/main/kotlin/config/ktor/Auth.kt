@@ -4,25 +4,24 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import domain.exceptions.AuthException
 import domain.model.auth.UserSession
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.sessions.*
 
 fun Application.configureAuth() {
+//    val httpClient by inject<HttpClient>()
+
     val jwtSecret = environment.config.property("jwt.secret").getString()
     val jwtIssuer = environment.config.property("jwt.issuer").getString()
     val jwtAudience = environment.config.property("jwt.audience").getString()
     val jwtRealm = environment.config.property("jwt.realm").getString()
 
-    val accessTokenLifetime = environment.config.property("jwt.accessToken.lifetime").getString().toLong()
-    val refreshTokenLifetime = environment.config.property("jwt.refreshToken.lifetime").getString().toLong()
-
-    val clientId = environment.config.property("oauth.google.clientId").getString()
-    val clientSecret = environment.config.property("oauth.google.clientSecret").getString()
+//    val accessTokenLifetime = environment.config.property("jwt.accessToken.lifetime").getString().toLong()
+//    val refreshTokenLifetime = environment.config.property("jwt.refreshToken.lifetime").getString().toLong()
+//
+//    val clientId = environment.config.property("oauth.google.clientId").getString()
+//    val clientSecret = environment.config.property("oauth.google.clientSecret").getString()
 
     install(Sessions) {
         cookie<UserSession>("user_session") {
@@ -51,20 +50,22 @@ fun Application.configureAuth() {
             }
         }
 
-        oauth("auth-oauth-google") {
-            urlProvider = { "http://localhost:8080/callback" }
-            providerLookup = {
-                OAuthServerSettings.OAuth2ServerSettings(
-                    name = "google",
-                    authorizeUrl = "https://accounts.google.com/o/oauth2/auth",
-                    accessTokenUrl = "https://accounts.google.com/o/oauth2/token",
-                    requestMethod = HttpMethod.Post,
-                    clientId = clientId,
-                    clientSecret = clientSecret,
-                    defaultScopes = listOf("email", "profile")
-                )
-            }
-            client = HttpClient(Apache)
-        }
+//        oauth("auth-oauth-google") {
+//            urlProvider = { "http://localhost:8080/auth/callback" }
+//            providerLookup = {
+//                OAuthServerSettings.OAuth2ServerSettings(
+//                    name = "google",
+//                    authorizeUrl = "https://accounts.google.com/o/oauth2/auth",
+//                    accessTokenUrl = "https://accounts.google.com/o/oauth2/token",
+//                    requestMethod = HttpMethod.Post,
+//                    clientId = clientId,
+//                    clientSecret = clientSecret,
+//                    defaultScopes = listOf("email", "profile"),
+//                    // Nastavit response_type na "code" místo "token" pro Authorization Code Flow s PKCE
+//                    //extraAuthParameters = listOf("response_type" to "code")
+//                )
+//            }
+//            client = httpClient
+//        }
     }
 }

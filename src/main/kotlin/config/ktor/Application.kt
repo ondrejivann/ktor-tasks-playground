@@ -21,6 +21,7 @@ fun Application.module() {
     configureDatabases()
     configureAuth()
     configureGraphQL()
+    // configureContentNegotiation()
     configureRouting()
     configureStatusPages()
     configureOpenAPI()

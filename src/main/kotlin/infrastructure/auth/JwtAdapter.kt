@@ -7,18 +7,23 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import domain.model.auth.TokenDetails
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.server.config.*
+import org.koin.core.annotation.Singleton
 import java.util.*
 
+@Singleton(binds = [JwtPort::class])
 class JwtAdapter(
-    private val secret: String,
-    private val issuer: String,
-    private val audience: String,
-    private val accessTokenLifetime: Long,
-    private val refreshTokenLifetime: Long
+    config: ApplicationConfig,
 ) : JwtPort {
+    private val logger = KotlinLogging.logger {}
+
+    private val secret = config.property("jwt.secret").getString()
+    private val issuer = config.property("jwt.issuer").getString()
+    private val audience = config.property("jwt.audience").getString()
+    private val accessTokenLifetime = config.property("jwt.accessToken.lifetime").getString().toLong()
+    private val refreshTokenLifetime = config.property("jwt.refreshToken.lifetime").getString().toLong()
 
     private val algorithm = Algorithm.HMAC256(secret)
-    private val logger = KotlinLogging.logger {}
 
     override fun generateAccessToken(userId: Int, email: String): String {
         logger.debug { "Generating access token for user $userId" }

@@ -4,6 +4,7 @@ import application.exceptions.BusinessRuleViolationException
 import application.exceptions.FileValidationException
 import application.exceptions.ResourceNotFoundException
 import common.exceptions.ErrorCodes
+import domain.exceptions.AuthException
 import domain.exceptions.EntityNotFoundException
 import domain.exceptions.ValidationException
 import graphql.ErrorType
@@ -61,6 +62,18 @@ class GraphQLExceptionHandler : DataFetcherExceptionHandler {
                 .extensions(mapOf(
                     "code" to exception.errorCode,
                     "type" to "RESOURCE_NOT_FOUND",
+                    "traceId" to traceId
+                ))
+                .build()
+
+            is AuthException -> GraphqlErrorBuilder.newError()
+                .message("Authentication error: ${exception.message}")
+                .location(sourceLocation)
+                .path(path)
+                .errorType(ErrorType.DataFetchingException)
+                .extensions(mapOf(
+                    "code" to exception.errorCode,
+                    "type" to "AUTHENTICATION_ERROR",
                     "traceId" to traceId
                 ))
                 .build()

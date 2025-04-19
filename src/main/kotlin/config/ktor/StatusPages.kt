@@ -4,6 +4,7 @@ import application.exceptions.BusinessRuleViolationException
 import application.exceptions.FileValidationException
 import application.exceptions.ResourceNotFoundException
 import common.exceptions.ErrorCodes.INTERNAL_ERROR
+import domain.exceptions.AuthException
 import domain.exceptions.EntityNotFoundException
 import domain.exceptions.ValidationException
 import infrastructure.exceptions.InfrastructureException
@@ -18,6 +19,7 @@ import java.util.*
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
+        // defaultGraphQLStatusPages()
         exception<ValidationException> { call, cause ->
             call.respondWithLogging(
                 status = HttpStatusCode.BadRequest,
@@ -78,6 +80,15 @@ fun Application.configureStatusPages() {
                 message = "An unexpected error occurred",
                 cause = cause,
                 errorCode = INTERNAL_ERROR,
+            )
+        }
+
+        exception<AuthException> { call, cause ->
+            call.respondWithLogging(
+                status = HttpStatusCode.Unauthorized,
+                cause = cause,
+                errorCode = cause.errorCode,
+                message = cause.message ?: "Authentication error",
             )
         }
     }

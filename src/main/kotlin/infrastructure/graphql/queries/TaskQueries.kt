@@ -6,6 +6,7 @@ import domain.filter.TaskSortField
 import domain.model.Priority
 import domain.model.TaskStatus
 import domain.ports.driving.TaskDetailService
+import infrastructure.graphql.auth.directive.RequireAuth
 import infrastructure.graphql.model.*
 import org.koin.core.annotation.Single
 

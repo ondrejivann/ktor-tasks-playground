@@ -25,7 +25,7 @@ class RefreshTokenDAO(id: EntityID<Int>) : IntEntity(id) {
 }
 
 fun RefreshToken.toEntity(): RefreshTokenDAO {
-    return RefreshTokenDAO.findById(id) ?: RefreshTokenDAO.new(id) {
+    return RefreshTokenDAO.findById(id) ?: RefreshTokenDAO.new {
         this.userId = EntityID(this@toEntity.userId, UsersTable)
         this.token = this@toEntity.token
         this.expiresAt = this@toEntity.expiresAt

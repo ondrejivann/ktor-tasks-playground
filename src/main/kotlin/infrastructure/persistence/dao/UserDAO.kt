@@ -32,7 +32,7 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
 }
 
 fun User.toDAO(): UserDAO {
-    val entity = UserDAO.findById(id) ?: UserDAO.new(id) {
+    val entity = UserDAO.findById(id) ?: UserDAO.new {
         this.email = this@toDAO.email
         this.passwordHash = this@toDAO.passwordHash
         this.firstName = this@toDAO.firstName

@@ -42,3 +42,5 @@ oauth:
     google:
         clientId: "$GOOGLE_OAUTH_CLIENT_ID"
         clientSecret: "$GOOGLE_OAUTH_CLIENT_SECRET"
+        redirectUri: "http://localhost:8080/auth/callback"
+    frontendCallbackUrl: "http://localhost:8080/auth-callback"
