@@ -4,14 +4,15 @@ import application.exceptions.BusinessRuleViolationException
 import application.exceptions.FileValidationException
 import application.exceptions.ResourceNotFoundException
 import common.exceptions.ErrorCodes.INTERNAL_ERROR
+import domain.exceptions.AuthException
 import domain.exceptions.EntityNotFoundException
 import domain.exceptions.ValidationException
 import infrastructure.exceptions.InfrastructureException
 import infrastructure.rest.dto.ErrorResponse
+import infrastructure.rest.utils.KotlinSerializationUtils.respondObject
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
-import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import java.util.*
@@ -80,6 +81,15 @@ fun Application.configureStatusPages() {
                 errorCode = INTERNAL_ERROR,
             )
         }
+
+        exception<AuthException> { call, cause ->
+            call.respondWithLogging(
+                status = HttpStatusCode.Unauthorized,
+                cause = cause,
+                errorCode = cause.errorCode,
+                message = cause.message ?: "Authentication error",
+            )
+        }
     }
 }
 
@@ -96,7 +106,9 @@ private suspend fun ApplicationCall.respondWithLogging(
 
     logger.error("Exception occurred: [traceId: $traceId, code: $errorCode] ${cause.message}", cause)
 
-    this.respond(
+    // Custom serialization because I cant use ContentNegotiation globally.
+    // https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
+    this.respondObject(
         status,
         ErrorResponse(
             message = message ?: "An error occurred",

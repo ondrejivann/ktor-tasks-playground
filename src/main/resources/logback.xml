@@ -12,6 +12,7 @@
     </root>
     <logger name="org.eclipse.jetty" level="debug"/>
     <logger name="io.ktor.server.config" level="DEBUG"/>
+    <logger name="io.ktor.client" level="DEBUG" />
     <logger name="io.netty" level="debug"/>
 
     <!-- AWS S3 a Credentials logování -->
@@ -21,7 +22,7 @@
     <logger name="aws.sdk.kotlin.runtime.http.engine" level="DEBUG"/>
 
     <!-- Koin dependency injection -->
-    <logger name="org.koin" level="INFO"/>
+    <logger name="org.koin" level="DEBUG"/>
 
     <!-- Exposed ORM logování SQL -->
     <logger name="Exposed" level="DEBUG"/>
@@ -34,4 +35,6 @@
 
     <!-- GraphQL -->
     <logger name="com.expediagroup.graphql" level="INFO"/>
+
+    <logger name="org.jetbrains.exposed.sql" level="INFO" />
 </configuration>
