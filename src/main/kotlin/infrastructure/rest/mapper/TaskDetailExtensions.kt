@@ -10,7 +10,8 @@ fun TaskDetail.toTaskResponse(): TaskResponse = TaskResponse(
     description = description,
     priority = priority,
     status = status,
-    attachments = attachments.map { attachment ->
+    attachments =
+    attachments.map { attachment ->
         TaskAttachmentResponse(
             id = attachment.id,
             fileName = attachment.fileName,

@@ -17,7 +17,8 @@ class UserRepositoryImpl : UserRepository {
 
     override suspend fun findByEmail(email: String): User? = newSuspendedTransaction {
         logger.debug { "Finding user by email: $email" }
-        UserDAO.find { UsersTable.email eq email }
+        UserDAO
+            .find { UsersTable.email eq email }
             .singleOrNull()
             ?.toUser()
     }
@@ -29,9 +30,11 @@ class UserRepositoryImpl : UserRepository {
 
     override suspend fun findByProviderId(providerId: String, provider: AuthProvider): User? = newSuspendedTransaction {
         logger.debug { "Finding user by providerId: $providerId, provider: $provider" }
-        UserDAO.find {
-            (UsersTable.providerId eq providerId) and (UsersTable.authProvider eq provider)
-        }.singleOrNull()?.toUser()
+        UserDAO
+            .find {
+                (UsersTable.providerId eq providerId) and (UsersTable.authProvider eq provider)
+            }.singleOrNull()
+            ?.toUser()
     }
 
     override suspend fun create(user: User): User = newSuspendedTransaction {

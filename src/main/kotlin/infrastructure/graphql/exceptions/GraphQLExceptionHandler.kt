@@ -19,6 +19,7 @@ import java.util.concurrent.CompletableFuture
 
 class GraphQLExceptionHandler : DataFetcherExceptionHandler {
     private val logger = KotlinLogging.logger {}
+
     override fun handleException(
         handlerParameters: DataFetcherExceptionHandlerParameters?,
     ): CompletableFuture<DataFetcherExceptionHandlerResult> {
@@ -31,122 +32,132 @@ class GraphQLExceptionHandler : DataFetcherExceptionHandler {
 
         logger.error(exception) { "GraphQL error occurred: [traceId: $traceId] ${exception.message}" }
 
-        val error = when (exception) {
-            is ValidationException -> GraphqlErrorBuilder.newError()
-                .message("Validation error: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.ValidationError)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "VALIDATION_ERROR",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+        val error =
+            when (exception) {
+                is ValidationException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("Validation error: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.ValidationError)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "VALIDATION_ERROR",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            is EntityNotFoundException -> GraphqlErrorBuilder.newError()
-                .message("Entity not found: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.DataFetchingException)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "NOT_FOUND",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+                is EntityNotFoundException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("Entity not found: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.DataFetchingException)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "NOT_FOUND",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            is ResourceNotFoundException -> GraphqlErrorBuilder.newError()
-                .message("Resource not found: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.DataFetchingException)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "RESOURCE_NOT_FOUND",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+                is ResourceNotFoundException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("Resource not found: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.DataFetchingException)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "RESOURCE_NOT_FOUND",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            is AuthException -> GraphqlErrorBuilder.newError()
-                .message("Authentication error: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.DataFetchingException)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "AUTHENTICATION_ERROR",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+                is AuthException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("Authentication error: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.DataFetchingException)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "AUTHENTICATION_ERROR",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            is BusinessRuleViolationException -> GraphqlErrorBuilder.newError()
-                .message("Business rule violation: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.ValidationError)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "BUSINESS_RULE_VIOLATION",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+                is BusinessRuleViolationException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("Business rule violation: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.ValidationError)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "BUSINESS_RULE_VIOLATION",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            is FileValidationException -> GraphqlErrorBuilder.newError()
-                .message("File validation error: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.ValidationError)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "FILE_VALIDATION_ERROR",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+                is FileValidationException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("File validation error: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.ValidationError)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "FILE_VALIDATION_ERROR",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            is InfrastructureException -> GraphqlErrorBuilder.newError()
-                .message("Infrastructure error: ${exception.message}")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.DataFetchingException)
-                .extensions(
-                    mapOf(
-                        "code" to exception.errorCode,
-                        "type" to "INFRASTRUCTURE_ERROR",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
+                is InfrastructureException ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("Infrastructure error: ${exception.message}")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.DataFetchingException)
+                        .extensions(
+                            mapOf(
+                                "code" to exception.errorCode,
+                                "type" to "INFRASTRUCTURE_ERROR",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
 
-            else -> GraphqlErrorBuilder.newError()
-                .message("An unexpected error occurred")
-                .location(sourceLocation)
-                .path(path)
-                .errorType(ErrorType.DataFetchingException)
-                .extensions(
-                    mapOf(
-                        "code" to ErrorCodes.INTERNAL_ERROR,
-                        "type" to "INTERNAL_ERROR",
-                        "traceId" to traceId,
-                    ),
-                )
-                .build()
-        }
+                else ->
+                    GraphqlErrorBuilder
+                        .newError()
+                        .message("An unexpected error occurred")
+                        .location(sourceLocation)
+                        .path(path)
+                        .errorType(ErrorType.DataFetchingException)
+                        .extensions(
+                            mapOf(
+                                "code" to ErrorCodes.INTERNAL_ERROR,
+                                "type" to "INTERNAL_ERROR",
+                                "traceId" to traceId,
+                            ),
+                        ).build()
+            }
 
         return CompletableFuture.completedFuture(
-            DataFetcherExceptionHandlerResult.newResult()
+            DataFetcherExceptionHandlerResult
+                .newResult()
                 .error(error)
                 .build(),
         )

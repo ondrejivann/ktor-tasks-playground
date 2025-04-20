@@ -35,7 +35,11 @@ class GraphQLContextFactory(private val userService: UserService) : DefaultKtorG
         var authContext: AuthContext? = null
 
         if (principal != null) {
-            val userId = principal.payload.getClaim("sub").asString().toIntOrNull()
+            val userId =
+                principal.payload
+                    .getClaim("sub")
+                    .asString()
+                    .toIntOrNull()
             if (userId != null) {
                 try {
                     val user = userService.getUserById(userId)
@@ -56,7 +60,8 @@ class GraphQLContextFactory(private val userService: UserService) : DefaultKtorG
         }
 
         // Použijeme Builder pro přidání našeho kontextu do standardního GraphQLContext
-        return GraphQLContext.newContext()
+        return GraphQLContext
+            .newContext()
             .of("request", request)
             .of("authContext", authContext)
             .build()

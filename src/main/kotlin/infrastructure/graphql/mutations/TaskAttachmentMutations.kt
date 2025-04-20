@@ -21,12 +21,13 @@ class TaskAttachmentMutations(private val taskAttachmentDetailService: TaskAttac
         taskId: Int,
         input: PrepareTaskAttachmentUploadRequestGQL,
     ): PrepareTaskAttachmentUploadResponseGQL = try {
-        val uploadInfo = taskAttachmentDetailService.prepareUploadForTask(
-            taskId = taskId,
-            fileName = input.fileName,
-            contentType = input.contentType,
-            fileSize = input.fileSize,
-        )
+        val uploadInfo =
+            taskAttachmentDetailService.prepareUploadForTask(
+                taskId = taskId,
+                fileName = input.fileName,
+                contentType = input.contentType,
+                fileSize = input.fileSize,
+            )
         uploadInfo.toGQL()
     } catch (e: ValidationException) {
         logger.warn { "Validation error: ${e.message}" }
@@ -40,10 +41,11 @@ class TaskAttachmentMutations(private val taskAttachmentDetailService: TaskAttac
     }
 
     suspend fun confirmAttachmentUpload(taskId: Int, fileKey: String): TaskAttachmentDetailGQL? = try {
-        val attachmentDetail = taskAttachmentDetailService.confirmAttachmentUpload(
-            taskId = taskId,
-            fileKey = fileKey,
-        )
+        val attachmentDetail =
+            taskAttachmentDetailService.confirmAttachmentUpload(
+                taskId = taskId,
+                fileKey = fileKey,
+            )
         attachmentDetail.toGQL()
     } catch (e: ValidationException) {
         logger.warn { "Validation error confirming upload: ${e.message}" }

@@ -12,7 +12,8 @@ import org.koin.core.annotation.Single
 @Single
 class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
     override suspend fun getAttachmentsForTask(taskId: Int): List<TaskAttachment> = suspendTransaction {
-        TaskAttachmentDAO.find { TaskAttachmentTable.taskId eq taskId }
+        TaskAttachmentDAO
+            .find { TaskAttachmentTable.taskId eq taskId }
             .map { dao ->
                 TaskAttachment(
                     id = dao.id.value,
@@ -26,12 +27,13 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
     }
 
     override suspend fun addAttachment(attachment: TaskAttachment): TaskAttachment = suspendTransaction {
-        val dao = TaskAttachmentDAO.new {
-            taskId = EntityID(attachment.taskId, TaskAttachmentTable)
-            fileKey = attachment.fileKey
-            fileName = attachment.fileName
-            contentType = attachment.contentType
-        }
+        val dao =
+            TaskAttachmentDAO.new {
+                taskId = EntityID(attachment.taskId, TaskAttachmentTable)
+                fileKey = attachment.fileKey
+                fileName = attachment.fileName
+                contentType = attachment.contentType
+            }
 
         TaskAttachment(
             id = dao.id.value,
@@ -44,10 +46,11 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
     }
 
     override suspend fun removeAttachment(id: Int): Boolean = suspendTransaction {
-        val count = TaskAttachmentDAO.findById(id)?.let {
-            it.delete()
-            1
-        } ?: 0
+        val count =
+            TaskAttachmentDAO.findById(id)?.let {
+                it.delete()
+                1
+            } ?: 0
 
         count > 0
     }
@@ -90,7 +93,6 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
                     contentType = dao.contentType,
                     uploadStatus = dao.uploadStatus,
                 )
-            }
-            .firstOrNull()
+            }.firstOrNull()
     }
 }

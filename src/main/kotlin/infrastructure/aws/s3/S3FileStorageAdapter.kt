@@ -28,30 +28,34 @@ class S3FileStorageAdapter(config: ApplicationConfig, private val s3ClientFactor
     override suspend fun generateUploadUrl(key: String, contentType: String, metadata: Map<String, String>): String =
         withContext(Dispatchers.IO) {
             s3ClientFactory.createClient(region).use { s3Client ->
-                val request = PutObjectRequest {
-                    this.bucket = bucketName
-                    this.key = key
-                    this.contentType = contentType
-                    this.metadata = metadata
-                }
-                val preSignedRequest = s3Client.presignPutObject(
-                    input = request,
-                    duration = Duration.ofSeconds(urlExpirationSeconds).toKotlinDuration(),
-                )
+                val request =
+                    PutObjectRequest {
+                        this.bucket = bucketName
+                        this.key = key
+                        this.contentType = contentType
+                        this.metadata = metadata
+                    }
+                val preSignedRequest =
+                    s3Client.presignPutObject(
+                        input = request,
+                        duration = Duration.ofSeconds(urlExpirationSeconds).toKotlinDuration(),
+                    )
                 preSignedRequest.url.toString()
             }
         }
 
     override suspend fun generateDownloadUrl(key: String): String = withContext(Dispatchers.IO) {
         s3ClientFactory.createClient(region).use { s3Client ->
-            val request = GetObjectRequest {
-                this.bucket = bucketName
-                this.key = key
-            }
-            val preSignedRequest = s3Client.presignGetObject(
-                input = request,
-                duration = Duration.ofSeconds(urlExpirationSeconds).toKotlinDuration(),
-            )
+            val request =
+                GetObjectRequest {
+                    this.bucket = bucketName
+                    this.key = key
+                }
+            val preSignedRequest =
+                s3Client.presignGetObject(
+                    input = request,
+                    duration = Duration.ofSeconds(urlExpirationSeconds).toKotlinDuration(),
+                )
             preSignedRequest.url.toString()
         }
     }
@@ -101,9 +105,10 @@ class ConfigBasedS3ClientFactory(config: ApplicationConfig) : S3ClientFactory {
 
     override fun createClient(region: String): S3Client = S3Client {
         this.region = region
-        this.credentialsProvider = StaticCredentialsProvider {
-            accessKeyId = accessKey
-            secretAccessKey = secretKey
-        }
+        this.credentialsProvider =
+            StaticCredentialsProvider {
+                accessKeyId = accessKey
+                secretAccessKey = secretKey
+            }
     }
 }

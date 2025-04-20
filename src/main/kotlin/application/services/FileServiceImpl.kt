@@ -17,10 +17,11 @@ import java.util.UUID
 class FileServiceImpl(private val fileStorage: FileStoragePort, config: ApplicationConfig) : FileService {
     private val logger = KotlinLogging.logger {}
 
-    private val urlExpirationSeconds = config
-        .property(S3Config.AWS_URL_EXPIRATION_SECONDS_PATH)
-        .getString()
-        .toInt()
+    private val urlExpirationSeconds =
+        config
+            .property(S3Config.AWS_URL_EXPIRATION_SECONDS_PATH)
+            .getString()
+            .toInt()
 
     override suspend fun prepareFileUpload(fileName: String, contentType: String, fileSize: Int): FileUploadInfo {
         logger.debug { "Preparing upload for file: $fileName, type: $contentType, size: $fileSize" }

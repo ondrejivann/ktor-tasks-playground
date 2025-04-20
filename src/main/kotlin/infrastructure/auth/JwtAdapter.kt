@@ -1,11 +1,10 @@
 package infrastructure.auth
 
-import domain.ports.driven.JwtPort
-
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import domain.model.auth.TokenDetails
+import domain.ports.driven.JwtPort
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.config.ApplicationConfig
 import org.koin.core.annotation.Singleton
@@ -25,7 +24,8 @@ class JwtAdapter(config: ApplicationConfig) : JwtPort {
 
     override fun generateAccessToken(userId: Int, email: String): String {
         logger.debug { "Generating access token for user $userId" }
-        return JWT.create()
+        return JWT
+            .create()
             .withSubject(userId.toString())
             .withIssuer(issuer)
             .withAudience(audience)
@@ -37,7 +37,8 @@ class JwtAdapter(config: ApplicationConfig) : JwtPort {
 
     override fun generateRefreshToken(userId: Int): String {
         logger.debug { "Generating refresh token for user $userId" }
-        return JWT.create()
+        return JWT
+            .create()
             .withSubject(userId.toString())
             .withIssuer(issuer)
             .withAudience(audience)
@@ -47,14 +48,17 @@ class JwtAdapter(config: ApplicationConfig) : JwtPort {
     }
 
     override fun verifyToken(token: String): TokenDetails? = try {
-        val verifier = JWT.require(algorithm)
-            .withIssuer(issuer)
-            .withAudience(audience)
-            .build()
+        val verifier =
+            JWT
+                .require(algorithm)
+                .withIssuer(issuer)
+                .withAudience(audience)
+                .build()
 
         val decodedJWT = verifier.verify(token)
-        val userId = decodedJWT.subject.toIntOrNull()
-            ?: throw IllegalArgumentException("Invalid user ID format in token")
+        val userId =
+            decodedJWT.subject.toIntOrNull()
+                ?: throw IllegalArgumentException("Invalid user ID format in token")
         val email = decodedJWT.getClaim("email").asString()
 
         TokenDetails(

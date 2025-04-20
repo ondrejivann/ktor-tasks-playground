@@ -18,13 +18,14 @@ import org.koin.core.annotation.Single
 class AuthMutations(private val userService: UserService) {
     @GraphQLDescription("Register a new user")
     suspend fun register(input: RegisterInputGQL): AuthResponseGQL {
-        val command = RegisterUserCommand(
-            email = input.email,
-            password = input.password,
-            firstName = input.firstName,
-            lastName = input.lastName,
-            authProvider = AuthProvider.LOCAL,
-        )
+        val command =
+            RegisterUserCommand(
+                email = input.email,
+                password = input.password,
+                firstName = input.firstName,
+                lastName = input.lastName,
+                authProvider = AuthProvider.LOCAL,
+            )
 
         val result = userService.registerUser(command)
 

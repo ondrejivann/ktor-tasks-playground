@@ -23,7 +23,8 @@ class RefreshTokenRepositoryImpl : RefreshTokenRepository {
     }
 
     override suspend fun findByToken(token: String): RefreshToken? = newSuspendedTransaction {
-        RefreshTokenDAO.find { RefreshTokensTable.token eq token }
+        RefreshTokenDAO
+            .find { RefreshTokensTable.token eq token }
             .singleOrNull()
             ?.toRefreshToken()
     }

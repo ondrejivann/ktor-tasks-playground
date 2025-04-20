@@ -42,14 +42,15 @@ class TaskRepositoryImpl : TaskRepository {
     }
 
     override suspend fun addTask(task: Task): Task = suspendTransaction {
-        val newTask = TaskDAO.new {
-            name = task.name
-            description = task.description
-            priority = task.priority
-            statusId = EntityID(task.status.id, TaskStatusTable)
-            createdAt = LocalDateTime.now()
-            updatedAt = LocalDateTime.now()
-        }
+        val newTask =
+            TaskDAO.new {
+                name = task.name
+                description = task.description
+                priority = task.priority
+                statusId = EntityID(task.status.id, TaskStatusTable)
+                createdAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now()
+            }
         taskDaoToModelWithStatus(newTask)
     }
 
@@ -84,9 +85,10 @@ class TaskRepositoryImpl : TaskRepository {
     }
 
     override suspend fun removeTask(name: String): Boolean = suspendTransaction {
-        val rowsDeleted = TaskTable.deleteWhere {
-            TaskTable.name eq name
-        }
+        val rowsDeleted =
+            TaskTable.deleteWhere {
+                TaskTable.name eq name
+            }
         rowsDeleted == 1
     }
 }

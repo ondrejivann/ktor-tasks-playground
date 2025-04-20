@@ -20,11 +20,12 @@ class FileControllerImpl(private val fileService: FileService) : FileController 
     override suspend fun prepareFileUpload(call: ApplicationCall) {
         val request = call.receive<FileUploadRequest>()
 
-        val fileUploadInfo = fileService.prepareFileUpload(
-            fileName = request.fileName,
-            contentType = request.contentType,
-            fileSize = request.fileSize,
-        )
+        val fileUploadInfo =
+            fileService.prepareFileUpload(
+                fileName = request.fileName,
+                contentType = request.contentType,
+                fileSize = request.fileSize,
+            )
 
         call.respond(
             HttpStatusCode.OK,
@@ -52,8 +53,9 @@ class FileControllerImpl(private val fileService: FileService) : FileController 
     }
 
     override suspend fun checkFileExists(call: ApplicationCall) {
-        val fileKey = call.parameters["fileKey"]
-            ?: throw ValidationException("Missing fileKey parameter", errorCode = ErrorCodes.VALIDATION_ERROR)
+        val fileKey =
+            call.parameters["fileKey"]
+                ?: throw ValidationException("Missing fileKey parameter", errorCode = ErrorCodes.VALIDATION_ERROR)
 
         val exists = fileService.checkFileExists(fileKey)
 

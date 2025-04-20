@@ -8,16 +8,12 @@ import domain.model.user.User
 data class UserGQL(
     @GraphQLDescription("User ID")
     val id: Int,
-
     @GraphQLDescription("User email")
     val email: String,
-
     @GraphQLDescription("User first name")
     val firstName: String?,
-
     @GraphQLDescription("User last name")
     val lastName: String?,
-
     @GraphQLDescription("Authentication provider (LOCAL, GOOGLE, etc.)")
     val authProvider: AuthProvider,
 )

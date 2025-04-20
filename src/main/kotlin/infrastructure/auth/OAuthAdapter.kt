@@ -2,27 +2,27 @@
 
 package infrastructure.auth
 
-//import domain.exceptions.AuthException
-//import domain.model.auth.AuthProvider
-//import domain.model.user.OAuthUserInfo
-//import domain.ports.driven.OAuthPort
-//import io.github.oshai.kotlinlogging.KotlinLogging
-//import io.ktor.client.*
-//import io.ktor.client.call.*
-//import io.ktor.client.request.*
-//import io.ktor.http.*
-//import kotlinx.serialization.json.JsonObject
-//import kotlinx.serialization.json.jsonPrimitive
-//import org.koin.core.annotation.Single
-//import common.exceptions.ErrorCodes
-//import domain.model.auth.OAuthAccessToken
-//import io.ktor.server.config.*
+// import domain.exceptions.AuthException
+// import domain.model.auth.AuthProvider
+// import domain.model.user.OAuthUserInfo
+// import domain.ports.driven.OAuthPort
+// import io.github.oshai.kotlinlogging.KotlinLogging
+// import io.ktor.client.*
+// import io.ktor.client.call.*
+// import io.ktor.client.request.*
+// import io.ktor.http.*
+// import kotlinx.serialization.json.JsonObject
+// import kotlinx.serialization.json.jsonPrimitive
+// import org.koin.core.annotation.Single
+// import common.exceptions.ErrorCodes
+// import domain.model.auth.OAuthAccessToken
+// import io.ktor.server.config.*
 
-//@Single(binds = [OAuthPort::class])
-//class OAuthAdapter(
+// @Single(binds = [OAuthPort::class])
+// class OAuthAdapter(
 //    private val httpClient: HttpClient,
 //    private val applicationConfig: ApplicationConfig,
-//) : OAuthPort {
+// ) : OAuthPort {
 //    private val logger = KotlinLogging.logger {}
 //
 //    override suspend fun getUserInfo(provider: AuthProvider, accessToken: String): OAuthUserInfo {
@@ -133,4 +133,4 @@ package infrastructure.auth
 //            )
 //        }
 //    }
-//}
+// }
