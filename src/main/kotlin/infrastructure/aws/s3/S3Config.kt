@@ -4,7 +4,6 @@ package infrastructure.aws.s3
  * Konfigurační konstanty pro AWS S3 adaptér
  */
 object S3Config {
-
     // Konfigurační cesty
     const val AWS_REGION_PATH = "ktor.aws.s3.region"
     const val AWS_BUCKET_NAME_PATH = "ktor.aws.s3.bucketName"
@@ -20,4 +19,4 @@ object S3Config {
     const val METADATA_ORIGINAL_FILENAME = "originalFileName"
     const val METADATA_UPLOADED_BY = "uploadedBy"
     const val METADATA_UPLOADED_AT = "uploadedAt"
-} 
+}

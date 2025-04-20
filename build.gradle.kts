@@ -8,6 +8,20 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+group = "com.example"
+version = "0.0.1"
+
+application {
+    mainClass = "io.ktor.server.netty.EngineMain"
+
+    val isDevelopment: Boolean = project.ext.has("development")
+    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+repositories {
+    mavenCentral()
+}
+
 ktlint {
     version = "1.5.0"
     verbose = true
@@ -25,19 +39,10 @@ ktlint {
     }
 }
 
-group = "com.example"
-version = "0.0.1"
-
-application {
-    mainClass = "io.ktor.server.netty.EngineMain"
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+tasks {
+    register<InstallGitHooksTask>("installGitHooks")
 }
-
-repositories {
-    mavenCentral()
-}
+tasks.getByPath("build").dependsOn("installGitHooks")
 
 dependencies {
     implementation(libs.ktor.server.core)
