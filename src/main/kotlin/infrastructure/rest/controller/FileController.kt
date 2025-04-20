@@ -1,6 +1,6 @@
 package infrastructure.rest.controller
 
-import io.ktor.server.application.*
+import io.ktor.server.application.ApplicationCall
 
 interface FileController {
     suspend fun prepareFileUpload(call: ApplicationCall)

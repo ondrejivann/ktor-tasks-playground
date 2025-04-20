@@ -9,8 +9,8 @@ import infrastructure.rest.route.authRoutes
 import infrastructure.rest.route.fileRoutes
 import infrastructure.rest.route.taskAttachmentRoutes
 import infrastructure.rest.route.taskRoutes
-import io.ktor.server.auth.*
-import io.ktor.server.routing.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.routing.Route
 
 fun Route.configureRestRoutes(
     authController: AuthController,

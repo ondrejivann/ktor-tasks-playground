@@ -1,6 +1,6 @@
 package infrastructure.rest.controller
 
-import io.ktor.server.application.*
+import io.ktor.server.application.ApplicationCall
 
 interface TaskController {
     suspend fun getAllTasks(call: ApplicationCall)

@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-empty-file")
+
 package com.example
 
 //class FakeTaskRepository : TaskRepository {

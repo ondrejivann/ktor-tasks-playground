@@ -1,7 +1,6 @@
 package domain.ports.driven
 
 import domain.model.auth.TokenDetails
-import java.util.UUID
 
 /**
  * Port defining operations for JWT token manipulation.

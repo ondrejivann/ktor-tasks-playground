@@ -12,9 +12,10 @@ class RootMutation(
     private val taskAppMutations: TaskAppMutations,
     private val adminTest: AdminTestMutations,
     private val authMutations: AuthMutations,
-): Mutation {
+) : Mutation {
     @RequireAuth
     fun taskApp(): TaskAppMutations = taskAppMutations
+
     @RequireAuth
     fun adminTest(): AdminTestMutations = adminTest
     fun auth(): AuthMutations = authMutations

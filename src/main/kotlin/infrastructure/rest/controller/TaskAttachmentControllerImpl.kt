@@ -3,17 +3,20 @@ package infrastructure.rest.controller
 import common.exceptions.ErrorCodes
 import domain.exceptions.ValidationException
 import domain.ports.driving.TaskAttachmentDetailService
-import infrastructure.rest.dto.*
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import infrastructure.rest.dto.PrepareTaskAttachmentUploadRequest
+import infrastructure.rest.dto.ConfirmTaskAttachmentUploadRequest
+import infrastructure.rest.dto.ErrorResponse
+import infrastructure.rest.dto.PrepareTaskAttachmentUploadResponse
+import infrastructure.rest.dto.TaskAttachmentDownloadResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import org.koin.core.annotation.Single
 
 @Single(binds = [TaskAttachmentController::class])
-class TaskAttachmentControllerImpl(
-    private val taskAttachmentDetailService: TaskAttachmentDetailService,
-) : TaskAttachmentController {
+class TaskAttachmentControllerImpl(private val taskAttachmentDetailService: TaskAttachmentDetailService) :
+    TaskAttachmentController {
 
     override suspend fun getAttachmentsForTask(call: ApplicationCall) {
         val taskId = call.parameters["taskId"]?.toIntOrNull()
@@ -37,7 +40,7 @@ class TaskAttachmentControllerImpl(
             taskId = taskId,
             fileName = request.fileName,
             contentType = request.contentType,
-            fileSize = request.fileSize
+            fileSize = request.fileSize,
         )
 
         call.respond(
@@ -46,8 +49,8 @@ class TaskAttachmentControllerImpl(
                 id = taskAttachmentUploadInfo.id,
                 uploadUrl = taskAttachmentUploadInfo.uploadUrl,
                 fileKey = taskAttachmentUploadInfo.fileKey,
-                expiresInSeconds = taskAttachmentUploadInfo.expiresInSeconds
-            )
+                expiresInSeconds = taskAttachmentUploadInfo.expiresInSeconds,
+            ),
         )
     }
 
@@ -59,7 +62,7 @@ class TaskAttachmentControllerImpl(
 
         val attachmentDetail = taskAttachmentDetailService.confirmAttachmentUpload(
             taskId = taskId,
-            fileKey = request.fileKey
+            fileKey = request.fileKey,
         )
 
         call.respond(
@@ -81,7 +84,7 @@ class TaskAttachmentControllerImpl(
             // Takže toto by nemělo nastat, ale pro jistotu necháváme
             call.respond(
                 HttpStatusCode.NotFound,
-                ErrorResponse("Attachment not found", ErrorCodes.ENTITY_NOT_FOUND)
+                ErrorResponse("Attachment not found", ErrorCodes.ENTITY_NOT_FOUND),
             )
         }
     }
@@ -94,7 +97,7 @@ class TaskAttachmentControllerImpl(
 
         call.respond(
             HttpStatusCode.OK,
-            TaskAttachmentDownloadResponse(downloadUrl = downloadUrl)
+            TaskAttachmentDownloadResponse(downloadUrl = downloadUrl),
         )
     }
 }

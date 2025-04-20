@@ -19,7 +19,7 @@ data class UserGQL(
     val lastName: String?,
 
     @GraphQLDescription("Authentication provider (LOCAL, GOOGLE, etc.)")
-    val authProvider: AuthProvider
+    val authProvider: AuthProvider,
 )
 
 // Extension function to convert domain User to UserGQL
@@ -28,5 +28,5 @@ fun User.toGQL(): UserGQL = UserGQL(
     email = email,
     firstName = firstName,
     lastName = lastName,
-    authProvider = authProvider
+    authProvider = authProvider,
 )

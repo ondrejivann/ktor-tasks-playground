@@ -12,8 +12,4 @@ data class CreateTaskCommandGQL(
 )
 
 @GraphQLDescription("Creation of Task attachment model")
-data class PrepareTaskAttachmentUploadInputGQL(
-    val fileName: String,
-    val contentType: String,
-    val fileSize: Int,
-)
+data class PrepareTaskAttachmentUploadInputGQL(val fileName: String, val contentType: String, val fileSize: Int)

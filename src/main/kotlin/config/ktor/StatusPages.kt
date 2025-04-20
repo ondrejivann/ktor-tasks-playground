@@ -10,12 +10,14 @@ import domain.exceptions.ValidationException
 import infrastructure.exceptions.InfrastructureException
 import infrastructure.rest.dto.ErrorResponse
 import infrastructure.rest.utils.KotlinSerializationUtils.respondObject
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.plugins.statuspages.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.application.install
+import io.ktor.server.plugins.statuspages.StatusPages
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
-import java.util.*
+import java.util.UUID
 
 fun Application.configureStatusPages() {
     install(StatusPages) {
@@ -97,7 +99,7 @@ private suspend fun ApplicationCall.respondWithLogging(
     status: HttpStatusCode,
     cause: Throwable,
     errorCode: String,
-    message: String? = cause.message
+    message: String? = cause.message,
 ) {
     val traceId = UUID.randomUUID().toString()
 
@@ -113,8 +115,8 @@ private suspend fun ApplicationCall.respondWithLogging(
         ErrorResponse(
             message = message ?: "An error occurred",
             code = errorCode,
-            traceId = traceId
-        )
+            traceId = traceId,
+        ),
     )
 
     MDC.clear()

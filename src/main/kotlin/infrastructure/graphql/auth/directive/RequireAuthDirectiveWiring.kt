@@ -33,7 +33,7 @@ class RequireAuthDirectiveWiring : KotlinSchemaDirectiveWiring {
                 }
                 // Pokud je autentizace úspěšná, vrátíme původní hodnotu
                 value
-            }
+            },
         )
 
         // Nastavíme upravený DataFetcher

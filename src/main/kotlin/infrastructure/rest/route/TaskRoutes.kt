@@ -1,12 +1,15 @@
 package infrastructure.rest.route
 
 import infrastructure.rest.controller.TaskController
-import io.ktor.server.http.content.*
-import io.ktor.server.routing.*
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.delete
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.put
+import io.ktor.server.routing.route
 
-fun Route.taskRoutes(
-    taskController: TaskController,
-) {
+fun Route.taskRoutes(taskController: TaskController) {
     staticResources("static", "static")
 
     route("/tasks") {

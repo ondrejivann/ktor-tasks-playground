@@ -11,5 +11,5 @@ data class TaskResponse(
     val description: String,
     val priority: Priority,
     val status: TaskStatus,
-    val attachments: List<TaskAttachmentResponse> = emptyList()
+    val attachments: List<TaskAttachmentResponse> = emptyList(),
 )

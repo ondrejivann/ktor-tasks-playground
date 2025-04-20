@@ -14,5 +14,5 @@ data class AuthResponseGQL(
     val expiresIn: Int,
 
     @GraphQLDescription("Authenticated user information")
-    val user: UserGQL
+    val user: UserGQL,
 )

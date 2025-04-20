@@ -20,15 +20,13 @@ class RefreshTokenDAO(id: EntityID<Int>) : IntEntity(id) {
         userId = userId.value,
         token = token,
         expiresAt = expiresAt,
-        createdAt = createdAt
+        createdAt = createdAt,
     )
 }
 
-fun RefreshToken.toEntity(): RefreshTokenDAO {
-    return RefreshTokenDAO.findById(id) ?: RefreshTokenDAO.new {
-        this.userId = EntityID(this@toEntity.userId, UsersTable)
-        this.token = this@toEntity.token
-        this.expiresAt = this@toEntity.expiresAt
-        this.createdAt = this@toEntity.createdAt
-    }
+fun RefreshToken.toEntity(): RefreshTokenDAO = RefreshTokenDAO.findById(id) ?: RefreshTokenDAO.new {
+    this.userId = EntityID(this@toEntity.userId, UsersTable)
+    this.token = this@toEntity.token
+    this.expiresAt = this@toEntity.expiresAt
+    this.createdAt = this@toEntity.createdAt
 }

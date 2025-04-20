@@ -1,7 +1,6 @@
 package domain.model.auth
 
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * Represents a refresh token used for obtaining new access tokens.
@@ -21,5 +20,5 @@ data class RefreshToken(
     val userId: Int,
     val token: String,
     val expiresAt: LocalDateTime,
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 )

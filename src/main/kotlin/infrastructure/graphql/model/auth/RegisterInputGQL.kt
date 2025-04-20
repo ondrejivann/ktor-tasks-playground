@@ -14,5 +14,5 @@ data class RegisterInputGQL(
     val firstName: String?,
 
     @GraphQLDescription("User last name")
-    val lastName: String?
+    val lastName: String?,
 )

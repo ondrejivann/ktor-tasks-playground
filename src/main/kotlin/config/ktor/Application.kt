@@ -1,25 +1,30 @@
 package config.ktor
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.application.Application
+import io.ktor.server.engine.CommandLineConfig
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.engine.loadCommonConfiguration
+import io.ktor.server.netty.Netty
 
 fun main(args: Array<String>) {
-    embeddedServer(Netty,
+    embeddedServer(
+        Netty,
         configure = {
             val cliConfig = CommandLineConfig(args)
             takeFrom(cliConfig.engineConfig)
             loadCommonConfiguration(cliConfig.rootConfig.environment.config)
-        }).start(wait = true)
+        },
+    ).start(wait = true)
 }
 
+@Suppress("ktlint:standard:no-consecutive-comments")
 fun Application.module() {
     logger.info { "Ktor is starting..." }
     /*
     https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
      */
-    //configureContentNegotiation()
+    // configureContentNegotiation()
     configureStatusPages()
     configureKoin()
     configureCORS()

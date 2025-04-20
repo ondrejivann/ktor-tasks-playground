@@ -4,9 +4,9 @@ import com.expediagroup.graphql.server.ktor.DefaultKtorGraphQLContextFactory
 import domain.exceptions.EntityNotFoundException
 import domain.ports.driving.UserService
 import graphql.GraphQLContext
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.request.*
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
+import io.ktor.server.request.ApplicationRequest
 import org.koin.core.annotation.Single
 
 /**
@@ -15,9 +15,7 @@ import org.koin.core.annotation.Single
  * authentication details for the current request.
  */
 @Single
-class GraphQLContextFactory(
-    private val userService: UserService
-) : DefaultKtorGraphQLContextFactory() {
+class GraphQLContextFactory(private val userService: UserService) : DefaultKtorGraphQLContextFactory() {
     /**
      * Generates a GraphQL context for the current request.
      * Extracts JWT authentication information and creates an AuthContext
@@ -28,7 +26,7 @@ class GraphQLContextFactory(
      */
     override suspend fun generateContext(request: ApplicationRequest): GraphQLContext {
         // Získáme základní kontext od rodičovské třídy
-        val context = super.generateContext(request)
+        // val context = super.generateContext(request)
 
         // Získáme JWT principal, pokud existuje
         val principal = request.call.principal<JWTPrincipal>()

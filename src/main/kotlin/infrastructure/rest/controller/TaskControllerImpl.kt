@@ -5,46 +5,48 @@ import domain.model.command.CreateTaskCommand
 import domain.ports.driving.TaskDetailService
 import infrastructure.rest.mapper.toTaskResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.http.*
-import io.ktor.serialization.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.JsonConvertException
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import org.koin.core.annotation.Single
 
 @Single(binds = [TaskController::class])
-class TaskControllerImpl(
-    private val taskDetailService: TaskDetailService,
-): TaskController {
-
+class TaskControllerImpl(private val taskDetailService: TaskDetailService) : TaskController {
     private val logger = KotlinLogging.logger {}
 
     override suspend fun getAllTasks(call: ApplicationCall) {
-        val tasks = taskDetailService
-            .getAllTasks()
-            .map{ it.toTaskResponse() }
+        val tasks =
+            taskDetailService
+                .getAllTasks()
+                .map { it.toTaskResponse() }
         call.respond(HttpStatusCode.OK, tasks)
     }
 
     override suspend fun getTaskByName(call: ApplicationCall) {
-        val name = call.parameters["taskName"]
-            ?: return call.respond(HttpStatusCode.BadRequest)
+        val name =
+            call.parameters["taskName"]
+                ?: return call.respond(HttpStatusCode.BadRequest)
 
-        val task = taskDetailService.getTaskByName(name)
-            ?: return call.respond(HttpStatusCode.NotFound)
+        val task =
+            taskDetailService.getTaskByName(name)
+                ?: return call.respond(HttpStatusCode.NotFound)
 
         call.respond(HttpStatusCode.OK, task.toTaskResponse())
     }
 
     override suspend fun getTasksByPriority(call: ApplicationCall) {
-        val priorityAsText = call.parameters["priority"]
-            ?: return call.respond(HttpStatusCode.BadRequest)
+        val priorityAsText =
+            call.parameters["priority"]
+                ?: return call.respond(HttpStatusCode.BadRequest)
 
         try {
             val priority = Priority.valueOf(priorityAsText)
-            val tasks = taskDetailService
-                .getTaskDetailByPriority(priority)
-                .map { it.toTaskResponse() }
+            val tasks =
+                taskDetailService
+                    .getTaskDetailByPriority(priority)
+                    .map { it.toTaskResponse() }
 
             if (tasks.isEmpty()) {
                 call.respond(HttpStatusCode.NotFound)
@@ -60,7 +62,7 @@ class TaskControllerImpl(
         try {
             val task = call.receive<CreateTaskCommand>()
             val createCommandTaskResponse = taskDetailService.addTask(task)
-            call.respond(HttpStatusCode.OK, createCommandTaskResponse,)
+            call.respond(HttpStatusCode.OK, createCommandTaskResponse)
         } catch (ex: IllegalStateException) {
             call.respond(HttpStatusCode.BadRequest)
         } catch (ex: JsonConvertException) {
@@ -90,8 +92,9 @@ class TaskControllerImpl(
     }
 
     override suspend fun deleteTask(call: ApplicationCall) {
-        val name = call.parameters["taskName"]
-            ?: return call.respond(HttpStatusCode.BadRequest)
+        val name =
+            call.parameters["taskName"]
+                ?: return call.respond(HttpStatusCode.BadRequest)
 
         if (taskDetailService.removeTask(name)) {
             call.respond(HttpStatusCode.NoContent)

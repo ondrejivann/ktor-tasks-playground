@@ -12,5 +12,5 @@ data class TaskAttachmentDetailGQL(
     @GraphQLDescription("Content type of the file, e.g. image/png")
     val contentType: String,
     @GraphQLDescription("Download URL")
-    val downloadUrl: String
+    val downloadUrl: String,
 )

@@ -7,13 +7,15 @@ import domain.ports.driving.UserService
 import graphql.schema.DataFetchingEnvironment
 import infrastructure.graphql.auth.AuthUtils
 import infrastructure.graphql.auth.directive.RequireAuth
-import infrastructure.graphql.model.auth.*
+import infrastructure.graphql.model.auth.AuthResponseGQL
+import infrastructure.graphql.model.auth.LoginInputGQL
+import infrastructure.graphql.model.auth.RefreshTokenInputGQL
+import infrastructure.graphql.model.auth.RegisterInputGQL
+import infrastructure.graphql.model.auth.toGQL
 import org.koin.core.annotation.Single
 
 @Single
-class AuthMutations(
-    private val userService: UserService
-) {
+class AuthMutations(private val userService: UserService) {
     @GraphQLDescription("Register a new user")
     suspend fun register(input: RegisterInputGQL): AuthResponseGQL {
         val command = RegisterUserCommand(
@@ -21,7 +23,7 @@ class AuthMutations(
             password = input.password,
             firstName = input.firstName,
             lastName = input.lastName,
-            authProvider = AuthProvider.LOCAL
+            authProvider = AuthProvider.LOCAL,
         )
 
         val result = userService.registerUser(command)
@@ -30,7 +32,7 @@ class AuthMutations(
             accessToken = result.accessToken,
             refreshToken = result.refreshToken,
             expiresIn = result.expiresIn.toInt(),
-            user = result.user.toGQL()
+            user = result.user.toGQL(),
         )
     }
 
@@ -42,7 +44,7 @@ class AuthMutations(
             accessToken = result.accessToken,
             refreshToken = result.refreshToken,
             expiresIn = result.expiresIn.toInt(),
-            user = result.user.toGQL()
+            user = result.user.toGQL(),
         )
     }
 
@@ -54,7 +56,7 @@ class AuthMutations(
             accessToken = result.accessToken,
             refreshToken = result.refreshToken,
             expiresIn = result.expiresIn.toInt(),
-            user = result.user.toGQL()
+            user = result.user.toGQL(),
         )
     }
 

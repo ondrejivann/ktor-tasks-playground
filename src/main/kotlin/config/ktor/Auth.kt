@@ -4,10 +4,13 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import domain.exceptions.AuthException
 import domain.model.auth.UserSession
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.sessions.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.auth.Authentication
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.jwt.jwt
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.cookie
 
 fun Application.configureAuth() {
 //    val httpClient by inject<HttpClient>()
@@ -38,12 +41,14 @@ fun Application.configureAuth() {
                     .require(Algorithm.HMAC256(jwtSecret))
                     .withAudience(jwtAudience)
                     .withIssuer(jwtIssuer)
-                    .build()
+                    .build(),
             )
             validate { credential ->
                 if (credential.payload.audience.contains(jwtAudience)) {
                     JWTPrincipal(credential.payload)
-                } else null
+                } else {
+                    null
+                }
             }
             challenge { _, _ ->
                 throw AuthException("Token is not valid or has expired")

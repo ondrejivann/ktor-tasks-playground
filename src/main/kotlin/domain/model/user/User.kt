@@ -2,7 +2,6 @@ package domain.model.user
 
 import domain.model.auth.AuthProvider
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * Represents a user in the system.
@@ -24,11 +23,11 @@ import java.util.*
 data class User(
     val id: Int,
     val email: String,
-    val passwordHash: String?,  // Null pro OAuth uživatele
+    val passwordHash: String?, // Null pro OAuth uživatele
     val firstName: String?,
     val lastName: String?,
     val authProvider: AuthProvider,
-    val providerId: String?,  // ID uživatele od poskytovatele OAuth
+    val providerId: String?, // ID uživatele od poskytovatele OAuth
     val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )

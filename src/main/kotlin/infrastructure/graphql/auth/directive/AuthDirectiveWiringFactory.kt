@@ -17,7 +17,9 @@ class AuthDirectiveWiringFactory : KotlinDirectiveWiringFactory() {
      * @param environment The schema directive environment
      * @return The directive wiring implementation or null if not supported
      */
-    override fun getSchemaDirectiveWiring(environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>): KotlinSchemaDirectiveWiring? {
+    override fun getSchemaDirectiveWiring(
+        environment: KotlinSchemaDirectiveEnvironment<GraphQLDirectiveContainer>,
+    ): KotlinSchemaDirectiveWiring? {
         val directive = environment.directive
         val element = environment.element
 

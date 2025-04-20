@@ -59,7 +59,9 @@ class TaskAttachmentRepositoryImpl : TaskAttachmentRepository {
                 this.uploadStatus = uploadStatus
             }
             true
-        } else false
+        } else {
+            false
+        }
     }
 
     override suspend fun getAttachmentById(id: Int): TaskAttachment? = suspendTransaction {

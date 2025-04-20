@@ -57,38 +57,38 @@ interface UserService {
      */
     suspend fun getUserByEmail(email: String): User?
 
-    /**
-     * Retrieves user information from Google using an access token.
-     *
-     * @param accessToken The OAuth access token
-     * @return User information retrieved from Google
-     * @throws BusinessRuleViolationException if the retrieval fails
-     */
+//    /**
+//     * Retrieves user information from Google using an access token.
+//     *
+//     * @param accessToken The OAuth access token
+//     * @return User information retrieved from Google
+//     * @throws BusinessRuleViolationException if the retrieval fails
+//     */
     // suspend fun getUserInfoFromGoogle(accessToken: String): OAuthUserInfo
 
-    /**
-     * Processes an OAuth authorization code and performs user authentication.
-     *
-     * This method handles the full OAuth flow by exchanging the authorization code for tokens,
-     * retrieving user information, and creating or updating the user in the system.
-     *
-     * @param provider The OAuth provider type (e.g., GOOGLE)
-     * @param authorizationCode The authorization code received from the provider
-     * @param redirectUri The redirect URI used in the OAuth flow
-     * @return Authentication response containing tokens and user information
-     */
+//    /**
+//     * Processes an OAuth authorization code and performs user authentication.
+//     *
+//     * This method handles the full OAuth flow by exchanging the authorization code for tokens,
+//     * retrieving user information, and creating or updating the user in the system.
+//     *
+//     * @param provider The OAuth provider type (e.g., GOOGLE)
+//     * @param authorizationCode The authorization code received from the provider
+//     * @param redirectUri The redirect URI used in the OAuth flow
+//     * @return Authentication response containing tokens and user information
+//     */
     // suspend fun processOAuthCode(provider: AuthProvider, authorizationCode: String, redirectUri: String): AuthResponse
 
-    /**
-     * Authenticates a user using an OAuth access token.
-     *
-     * This method retrieves user information from the OAuth provider,
-     * creates or updates the user in the system, and generates authentication tokens.
-     *
-     * @param provider The OAuth provider type (e.g., GOOGLE)
-     * @param accessToken The OAuth access token
-     * @return Authentication response containing tokens and user information
-     */
+//    /**
+//     * Authenticates a user using an OAuth access token.
+//     *
+//     * This method retrieves user information from the OAuth provider,
+//     * creates or updates the user in the system, and generates authentication tokens.
+//     *
+//     * @param provider The OAuth provider type (e.g., GOOGLE)
+//     * @param accessToken The OAuth access token
+//     * @return Authentication response containing tokens and user information
+//     */
     // suspend fun authenticateWithOAuth(provider: AuthProvider, accessToken: String): AuthResponse
 
     /**

@@ -8,5 +8,5 @@ data class RegisterUserCommand(
     val firstName: String? = null,
     val lastName: String? = null,
     val authProvider: AuthProvider = AuthProvider.LOCAL,
-    val providerId: String? = null
+    val providerId: String? = null,
 )

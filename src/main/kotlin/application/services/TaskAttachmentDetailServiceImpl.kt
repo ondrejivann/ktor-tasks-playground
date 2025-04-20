@@ -30,7 +30,7 @@ class TaskAttachmentDetailServiceImpl(
                 fileKey = attachment.fileKey,
                 fileName = attachment.fileName,
                 contentType = attachment.contentType,
-                downloadUrl = fileDownloadInfo.downloadUrl
+                downloadUrl = fileDownloadInfo.downloadUrl,
             )
         }
     }
@@ -39,20 +39,21 @@ class TaskAttachmentDetailServiceImpl(
         taskId: Int,
         fileName: String,
         contentType: String,
-        fileSize: Int
+        fileSize: Int,
     ): TaskAttachmentUploadInfo {
         taskRepository.taskById(taskId)
             ?: throw EntityNotFoundException("Task", taskId, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         val uploadInfo = fileService.prepareFileUpload(fileName, contentType, fileSize)
 
-        val attachment = TaskAttachment(
-            taskId = taskId,
-            fileKey = uploadInfo.fileKey,
-            fileName = fileName,
-            contentType = contentType,
-            uploadStatus = UploadStatus.PENDING,
-        )
+        val attachment =
+            TaskAttachment(
+                taskId = taskId,
+                fileKey = uploadInfo.fileKey,
+                fileName = fileName,
+                contentType = contentType,
+                uploadStatus = UploadStatus.PENDING,
+            )
 
         val taskAttachment = taskAttachmentService.addTaskAttachment(attachment)
 
@@ -68,14 +69,15 @@ class TaskAttachmentDetailServiceImpl(
         taskRepository.taskById(taskId)
             ?: throw EntityNotFoundException("Task", taskId, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
-        val attachment = taskAttachmentService.getAttachmentByFileKey(fileKey)
-            ?: throw EntityNotFoundException("Attachment", fileKey, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
+        val attachment =
+            taskAttachmentService.getAttachmentByFileKey(fileKey)
+                ?: throw EntityNotFoundException("Attachment", fileKey, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         if (!fileService.checkFileExists(fileKey)) {
             taskAttachmentService.updateAttachmentUploadStatus(attachment.id, UploadStatus.FAILED)
             throw BusinessRuleViolationException(
                 message = "File not found or upload failed",
-                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION,
             )
         }
 
@@ -87,7 +89,7 @@ class TaskAttachmentDetailServiceImpl(
                 fileKey = attachment.fileKey,
                 fileName = attachment.fileName,
                 contentType = attachment.contentType,
-                downloadUrl = fileDownloadInfo.downloadUrl
+                downloadUrl = fileDownloadInfo.downloadUrl,
             )
         } else {
             throw EntityNotFoundException("Attachment", attachment.id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
@@ -95,8 +97,9 @@ class TaskAttachmentDetailServiceImpl(
     }
 
     override suspend fun removeAttachment(id: Int): Boolean {
-        val attachment = taskAttachmentService.getTaskAttachmentById(id)
-            ?: throw EntityNotFoundException("Attachment", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
+        val attachment =
+            taskAttachmentService.getTaskAttachmentById(id)
+                ?: throw EntityNotFoundException("Attachment", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         fileService.deleteFile(attachment.fileKey)
 
@@ -104,8 +107,9 @@ class TaskAttachmentDetailServiceImpl(
     }
 
     override suspend fun generateDownloadUrlForAttachment(id: Int): String {
-        val attachment = taskAttachmentService.getTaskAttachmentById(id)
-            ?: throw EntityNotFoundException("Attachment", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
+        val attachment =
+            taskAttachmentService.getTaskAttachmentById(id)
+                ?: throw EntityNotFoundException("Attachment", id, errorCode = ErrorCodes.ENTITY_NOT_FOUND)
 
         return fileService.generateDownloadLink(attachment.fileKey).downloadUrl
     }

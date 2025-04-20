@@ -11,7 +11,6 @@ import infrastructure.persistence.table.TaskStatusTable
 import infrastructure.persistence.table.TaskTable
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Union
 import org.jetbrains.exposed.sql.deleteWhere
 import org.koin.core.annotation.Single
 import java.time.LocalDateTime
@@ -64,7 +63,9 @@ class TaskRepositoryImpl : TaskRepository {
                 this.updatedAt = LocalDateTime.now()
             }
             true
-        } else false
+        } else {
+            false
+        }
     }
 
     override suspend fun updateTaskStatus(name: String, statusCode: String): Boolean = suspendTransaction {
@@ -77,7 +78,9 @@ class TaskRepositoryImpl : TaskRepository {
                 updatedAt = LocalDateTime.now()
             }
             true
-        } else false
+        } else {
+            false
+        }
     }
 
     override suspend fun removeTask(name: String): Boolean = suspendTransaction {

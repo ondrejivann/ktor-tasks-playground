@@ -1,9 +1,28 @@
+import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.ktlint)
+}
+
+ktlint {
+    version = "1.5.0"
+    verbose = true
+    outputToConsole = true
+    enableExperimentalRules = true
+    ignoreFailures = true
+
+    filter {
+        exclude("**/build/**")
+        include("**/kotlin/**")
+    }
+    reporters {
+        reporter(ReporterType.PLAIN)
+        reporter(ReporterType.CHECKSTYLE)
+    }
 }
 
 group = "com.example"
@@ -54,7 +73,7 @@ dependencies {
     implementation(libs.ktor.server.call.logging)
     implementation(libs.kotlin.logging)
     implementation(libs.ktor.client.logging)
-    
+
     // Koin for Ktor
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)

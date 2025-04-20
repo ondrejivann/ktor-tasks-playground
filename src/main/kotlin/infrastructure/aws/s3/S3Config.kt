@@ -11,10 +11,10 @@ object S3Config {
     const val AWS_ACCESS_KEY_PATH = "ktor.aws.s3.accessKey"
     const val AWS_SECRET_KEY_PATH = "ktor.aws.s3.secretKey"
     const val AWS_URL_EXPIRATION_SECONDS_PATH = "ktor.aws.s3.urlExpirationSeconds"
-    
+
     // Výchozí hodnoty (volitelné)
     const val DEFAULT_URL_EXPIRATION_SECONDS = 3600L
-    
+
     // Konstanty pro S3 operace
     const val UPLOADS_PREFIX = "taskimages/"
     const val METADATA_ORIGINAL_FILENAME = "originalFileName"

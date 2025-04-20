@@ -10,5 +10,5 @@ fun statusDaoToModel(dao: TaskStatusDAO) = TaskStatus(
     description = dao.description,
     color = dao.color,
     icon = dao.icon,
-    displayOrder = dao.displayOrder
+    displayOrder = dao.displayOrder,
 )

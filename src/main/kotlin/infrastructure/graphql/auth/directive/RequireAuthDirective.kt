@@ -11,7 +11,7 @@ import graphql.introspection.Introspection
 @GraphQLDirective(
     name = "requireAuth",
     description = "Marks operations requiring authentication",
-    locations = [Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.FIELD]
+    locations = [Introspection.DirectiveLocation.FIELD_DEFINITION, Introspection.DirectiveLocation.FIELD],
 )
 @GraphQLDescription("Marks operations requiring authentication")
 annotation class RequireAuth

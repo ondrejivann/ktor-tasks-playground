@@ -1,20 +1,12 @@
 package com.example
 
-import application.services.TaskServiceImpl
-import domain.model.Priority
-import domain.model.Task
-import infrastructure.rest.config.configureRestRoutes
-import io.ktor.client.call.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.routing.*
-import io.ktor.server.testing.*
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
+//import io.ktor.client.call.*
+//import io.ktor.client.plugins.contentnegotiation.*
+//import io.ktor.client.request.*
+//import io.ktor.http.*
+//import io.ktor.serialization.kotlinx.json.*
+//import io.ktor.server.routing.*
+//import io.ktor.server.testing.*
 
 class ApplicationTest {
 //    @Test

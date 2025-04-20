@@ -8,21 +8,19 @@ import infrastructure.graphql.model.files.FileUploadResultGQL
 import org.koin.core.annotation.Single
 
 @Single
-class FileStorageMutations(
-    private val fileService: FileService
-) {
+class FileStorageMutations(private val fileService: FileService) {
     suspend fun prepareFileUpload(input: FileUploadInputGQL): FileUploadResultGQL {
         val fileUploadInfo = fileService.prepareFileUpload(
             fileName = input.fileName,
             contentType = input.contentType,
-            fileSize = input.fileSize
+            fileSize = input.fileSize,
         )
 
         return FileUploadResultGQL(
             success = true,
             uploadUrl = fileUploadInfo.uploadUrl,
             fileKey = fileUploadInfo.fileKey,
-            expiresInSeconds = fileUploadInfo.expiresInSeconds
+            expiresInSeconds = fileUploadInfo.expiresInSeconds,
         )
     }
 
@@ -33,7 +31,7 @@ class FileStorageMutations(
             success = true,
             downloadUrl = downloadInfo.downloadUrl,
             fileName = downloadInfo.fileName,
-            expiresInSeconds = downloadInfo.expiresInSeconds
+            expiresInSeconds = downloadInfo.expiresInSeconds,
         )
     }
 
@@ -41,7 +39,7 @@ class FileStorageMutations(
         val success = fileService.deleteFile(fileKey)
         return FileOperationResultGQL(
             success = true,
-            message = "File successfully deleted"
+            message = "File successfully deleted",
         )
     }
 }

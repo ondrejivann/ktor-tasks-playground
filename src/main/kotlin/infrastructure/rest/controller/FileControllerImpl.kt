@@ -4,24 +4,26 @@ import common.exceptions.ErrorCodes
 import domain.exceptions.ValidationException
 import domain.ports.driving.FileService
 import infrastructure.exceptions.FileStorageException
-import infrastructure.rest.dto.*
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import infrastructure.rest.dto.FileDeleteRequest
+import infrastructure.rest.dto.FileDownloadRequest
+import infrastructure.rest.dto.FileDownloadResponse
+import infrastructure.rest.dto.FileUploadRequest
+import infrastructure.rest.dto.FileUploadResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import org.koin.core.annotation.Single
 
 @Single(binds = [FileController::class])
-class FileControllerImpl(
-    private val fileService: FileService,
-) : FileController {
+class FileControllerImpl(private val fileService: FileService) : FileController {
     override suspend fun prepareFileUpload(call: ApplicationCall) {
         val request = call.receive<FileUploadRequest>()
 
         val fileUploadInfo = fileService.prepareFileUpload(
             fileName = request.fileName,
             contentType = request.contentType,
-            fileSize = request.fileSize
+            fileSize = request.fileSize,
         )
 
         call.respond(
@@ -29,8 +31,8 @@ class FileControllerImpl(
             FileUploadResponse(
                 uploadUrl = fileUploadInfo.uploadUrl,
                 fileKey = fileUploadInfo.fileKey,
-                expiresInSeconds = fileUploadInfo.expiresInSeconds
-            )
+                expiresInSeconds = fileUploadInfo.expiresInSeconds,
+            ),
         )
     }
 
@@ -44,8 +46,8 @@ class FileControllerImpl(
             FileDownloadResponse(
                 downloadUrl = downloadInfo.downloadUrl,
                 fileName = downloadInfo.fileName,
-                expiresInSeconds = downloadInfo.expiresInSeconds
-            )
+                expiresInSeconds = downloadInfo.expiresInSeconds,
+            ),
         )
     }
 
@@ -57,7 +59,7 @@ class FileControllerImpl(
 
         call.respond(
             HttpStatusCode.OK,
-            mapOf("exists" to exists)
+            mapOf("exists" to exists),
         )
     }
 
@@ -71,7 +73,7 @@ class FileControllerImpl(
         } else {
             throw FileStorageException(
                 message = "Failed to remove the file",
-                errorCode = ErrorCodes.FILE_STORAGE_ERROR
+                errorCode = ErrorCodes.FILE_STORAGE_ERROR,
             )
         }
     }

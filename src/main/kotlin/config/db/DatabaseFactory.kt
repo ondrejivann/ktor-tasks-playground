@@ -18,19 +18,20 @@ object DatabaseFactory {
             createDatabaseIfNotExists(config)
 
             // Nastavení HikariCP pro aplikační databázi
-            val hikariConfig = HikariConfig().apply {
-                driverClassName = config.driverClassName
-                jdbcUrl = config.jdbcURL
-                username = config.user
-                password = config.password
-                maximumPoolSize = 3
-                isAutoCommit = false
-                transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-                // Volitelné parametry pro lepší výkon
-                addDataSourceProperty("cachePrepStmts", "true")
-                addDataSourceProperty("prepStmtCacheSize", "250")
-                addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-            }
+            val hikariConfig =
+                HikariConfig().apply {
+                    driverClassName = config.driverClassName
+                    jdbcUrl = config.jdbcURL
+                    username = config.user
+                    password = config.password
+                    maximumPoolSize = 3
+                    isAutoCommit = false
+                    transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+                    // Volitelné parametry pro lepší výkon
+                    addDataSourceProperty("cachePrepStmts", "true")
+                    addDataSourceProperty("prepStmtCacheSize", "250")
+                    addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+                }
 
             // Vytvoření DataSource
             dataSource = HikariDataSource(hikariConfig)
@@ -39,14 +40,15 @@ object DatabaseFactory {
             Database.connect(dataSource)
 
             // Inicializace a spuštění Flyway migrací
-            val flyway = Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:db/migrations")
-                .baselineOnMigrate(true)
-                .load()
+            val flyway =
+                Flyway
+                    .configure()
+                    .dataSource(dataSource)
+                    .locations("classpath:db/migrations")
+                    .baselineOnMigrate(true)
+                    .load()
 
             flyway.migrate()
-
         } catch (e: Exception) {
             logger.error("Failed to initialize database", e)
             throw e
@@ -54,14 +56,15 @@ object DatabaseFactory {
     }
 
     private fun createDatabaseIfNotExists(config: DatabaseConfig) {
-        val defaultHikariConfig = HikariConfig().apply {
-            driverClassName = config.driverClassName
-            jdbcUrl = config.defaultJdbcURL
-            username = config.user
-            password = config.password
-            maximumPoolSize = 1
-            isAutoCommit = true
-        }
+        val defaultHikariConfig =
+            HikariConfig().apply {
+                driverClassName = config.driverClassName
+                jdbcUrl = config.defaultJdbcURL
+                username = config.user
+                password = config.password
+                maximumPoolSize = 1
+                isAutoCommit = true
+            }
 
         try {
             HikariDataSource(defaultHikariConfig).use { defaultDataSource ->
@@ -78,14 +81,15 @@ object DatabaseFactory {
     }
 
     private fun databaseExists(connection: Connection, dbName: String): Boolean {
-        connection.prepareStatement(
-            "SELECT 1 FROM pg_database WHERE datname = ?"
-        ).use { statement ->
-            statement.setString(1, dbName)
-            statement.executeQuery().use { resultSet ->
-                return resultSet.next()
+        connection
+            .prepareStatement(
+                "SELECT 1 FROM pg_database WHERE datname = ?",
+            ).use { statement ->
+                statement.setString(1, dbName)
+                statement.executeQuery().use { resultSet ->
+                    return resultSet.next()
+                }
             }
-        }
     }
 
     private fun createDatabase(connection: Connection, dbName: String) {
@@ -95,7 +99,7 @@ object DatabaseFactory {
         logger.info("Database $dbName created successfully")
     }
 
-    fun getDataSource(): HikariDataSource = dataSource
+    // fun getDataSource(): HikariDataSource = dataSource
 }
 
 data class DatabaseConfig(
@@ -104,5 +108,5 @@ data class DatabaseConfig(
     val jdbcURL: String,
     val user: String,
     val password: String,
-    val dbName: String
+    val dbName: String,
 )

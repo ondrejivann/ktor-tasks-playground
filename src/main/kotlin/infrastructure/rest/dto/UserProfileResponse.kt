@@ -7,5 +7,5 @@ data class UserProfileResponse(
     val email: String,
     val firstName: String?,
     val lastName: String?,
-    val authProvider: AuthProvider
+    val authProvider: AuthProvider,
 )

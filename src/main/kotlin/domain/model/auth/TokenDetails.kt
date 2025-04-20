@@ -12,9 +12,4 @@ package domain.model.auth
  * @property issuedAt Timestamp (in milliseconds) when the token was issued
  * @property expiresAt Timestamp (in milliseconds) when the token expires
  */
-data class TokenDetails(
-    val userId: Int,
-    val email: String? = null,
-    val issuedAt: Long,
-    val expiresAt: Long
-)
+data class TokenDetails(val userId: Int, val email: String? = null, val issuedAt: Long, val expiresAt: Long)

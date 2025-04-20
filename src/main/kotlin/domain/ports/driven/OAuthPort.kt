@@ -1,12 +1,15 @@
+@file:Suppress("ktlint:standard:no-empty-file")
+
 package domain.ports.driven
 
-/**
- * Port defining operations for retrieving user information from OAuth providers.
- *
- * This port abstracts the interaction with external OAuth providers, allowing
- * the domain layer to remain independent of specific OAuth implementations.
- */
-//interface OAuthPort {
+// /**
+// * Port defining operations for retrieving user information from OAuth providers.
+// *
+// * This port abstracts the interaction with external OAuth providers, allowing
+// * the domain layer to remain independent of specific OAuth implementations.
+// */
+
+// interface OAuthPort {
 //    /**
 //     * Retrieves user information from a specific OAuth provider using the provided access token.
 //     *
@@ -30,4 +33,4 @@ package domain.ports.driven
 //        code: String,
 //        redirectUri: String
 //    ): OAuthAccessToken
-//}
+// }

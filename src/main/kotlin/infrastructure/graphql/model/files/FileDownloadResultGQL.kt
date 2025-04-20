@@ -8,5 +8,5 @@ data class FileDownloadResultGQL(
     val downloadUrl: String? = null,
     val fileName: String? = null,
     val expiresInSeconds: Int? = null,
-    val message: String? = null
+    val message: String? = null,
 )

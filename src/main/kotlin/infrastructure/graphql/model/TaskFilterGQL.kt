@@ -23,18 +23,18 @@ data class TaskFilterGQL(
     val sortBy: TaskSortFieldGQL? = null,
 
     @GraphQLDescription("Sorting direction")
-    val sortDirection: SortDirectionGQL? = SortDirectionGQL.ASC
+    val sortDirection: SortDirectionGQL? = SortDirectionGQL.ASC,
 )
 
 @GraphQLDescription("Field for result sorting")
 enum class TaskSortFieldGQL {
     NAME,
     PRIORITY,
-    STATUS
+    STATUS,
 }
 
 @GraphQLDescription("Sorting direction")
 enum class SortDirectionGQL {
     ASC,
-    DESC
+    DESC,
 }

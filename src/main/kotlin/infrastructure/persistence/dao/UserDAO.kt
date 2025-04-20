@@ -27,7 +27,7 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
         authProvider = authProvider,
         providerId = providerId,
         createdAt = createdAt,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
     )
 }
 
