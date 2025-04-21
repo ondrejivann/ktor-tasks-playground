@@ -2,7 +2,6 @@ package domain.ports.driven
 
 import domain.model.auth.AuthProvider
 import domain.model.user.User
-import java.util.*
 
 /**
  * Port for user-related operations.

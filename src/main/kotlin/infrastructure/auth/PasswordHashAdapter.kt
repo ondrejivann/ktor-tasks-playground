@@ -28,7 +28,7 @@ class PasswordHashAdapter : PasswordHashPort {
         // BCrypt.withDefaults() uses BCrypt.Version.VERSION_2A ($2a$)
         return BCrypt.withDefaults().hashToString(
             COST,
-            password.toCharArray()
+            password.toCharArray(),
         )
     }
 
@@ -36,10 +36,11 @@ class PasswordHashAdapter : PasswordHashPort {
         logger.debug { "Verifying password with BCrypt" }
 
         try {
-            val result = BCrypt.verifyer().verify(
-                password.toCharArray(),
-                hash
-            )
+            val result =
+                BCrypt.verifyer().verify(
+                    password.toCharArray(),
+                    hash,
+                )
 
             return result.verified
         } catch (e: Exception) {

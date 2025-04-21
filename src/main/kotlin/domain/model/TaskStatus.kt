@@ -11,5 +11,5 @@ data class TaskStatus(
     val description: String? = null,
     val color: String? = null,
     val icon: String? = null,
-    val displayOrder: Int
+    val displayOrder: Int,
 )

@@ -12,11 +12,13 @@ class RootQuery(
     private val taskAppQueries: TaskAppQueries,
     private val adminTestQueries: AdminTestQueries,
     private val authQueries: AuthQueries,
-): Query {
+) : Query {
     @RequireAuth
     fun taskApp(): TaskAppQueries = taskAppQueries
+
     @RequireAuth
     fun adminTest(): AdminTestQueries = adminTestQueries
+
     @RequireAuth
     fun auth(): AuthQueries = authQueries
 }

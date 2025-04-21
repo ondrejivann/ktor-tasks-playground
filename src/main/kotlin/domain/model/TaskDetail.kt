@@ -6,5 +6,5 @@ data class TaskDetail(
     val description: String,
     val priority: Priority,
     val status: TaskStatus,
-    val attachments: List<TaskAttachmentDetail>
+    val attachments: List<TaskAttachmentDetail>,
 )

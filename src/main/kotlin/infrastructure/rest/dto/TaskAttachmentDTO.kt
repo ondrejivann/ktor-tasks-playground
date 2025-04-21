@@ -3,19 +3,10 @@ package infrastructure.rest.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TaskAttachmentResponse(
-    val id: Int,
-    val fileName: String,
-    val contentType: String,
-    val downloadUrl: String,
-)
+data class TaskAttachmentResponse(val id: Int, val fileName: String, val contentType: String, val downloadUrl: String)
 
 @Serializable
-data class PrepareTaskAttachmentUploadRequest(
-    val fileName: String,
-    val contentType: String,
-    val fileSize: Int
-)
+data class PrepareTaskAttachmentUploadRequest(val fileName: String, val contentType: String, val fileSize: Int)
 
 @Serializable
 data class PrepareTaskAttachmentUploadResponse(
@@ -26,11 +17,7 @@ data class PrepareTaskAttachmentUploadResponse(
 )
 
 @Serializable
-data class ConfirmTaskAttachmentUploadRequest(
-    val fileKey: String
-)
+data class ConfirmTaskAttachmentUploadRequest(val fileKey: String)
 
 @Serializable
-data class TaskAttachmentDownloadResponse(
-    val downloadUrl: String
-)
+data class TaskAttachmentDownloadResponse(val downloadUrl: String)

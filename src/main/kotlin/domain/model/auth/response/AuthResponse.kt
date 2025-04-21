@@ -13,9 +13,4 @@ import domain.model.user.User
  * @property user The authenticated user object
  * @property expiresIn Time in seconds until the access token expires
  */
-data class AuthResponse(
-    val accessToken: String,
-    val refreshToken: String,
-    val user: User,
-    val expiresIn: Long
-)
+data class AuthResponse(val accessToken: String, val refreshToken: String, val user: User, val expiresIn: Long)

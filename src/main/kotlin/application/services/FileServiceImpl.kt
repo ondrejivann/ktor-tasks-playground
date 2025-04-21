@@ -1,27 +1,27 @@
 package application.services
 
-import domain.model.file.FileDownloadInfo
-import domain.model.file.FileUploadInfo
-import domain.ports.driving.FileService
-import domain.ports.driven.FileStoragePort
 import application.exceptions.FileValidationException
 import application.exceptions.ResourceNotFoundException
 import common.exceptions.ErrorCodes
+import domain.model.file.FileDownloadInfo
+import domain.model.file.FileUploadInfo
+import domain.ports.driven.FileStoragePort
+import domain.ports.driving.FileService
 import infrastructure.aws.s3.S3Config
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.server.config.*
+import io.ktor.server.config.ApplicationConfig
 import org.koin.core.annotation.Single
-import java.util.*
+import java.util.UUID
 
 @Single
-class FileServiceImpl(
-    private val fileStorage: FileStoragePort,
-    config: ApplicationConfig,
-) : FileService {
+class FileServiceImpl(private val fileStorage: FileStoragePort, config: ApplicationConfig) : FileService {
     private val logger = KotlinLogging.logger {}
 
-    private val urlExpirationSeconds = config.property(S3Config.AWS_URL_EXPIRATION_SECONDS_PATH)
-        .getString().toInt()
+    private val urlExpirationSeconds =
+        config
+            .property(S3Config.AWS_URL_EXPIRATION_SECONDS_PATH)
+            .getString()
+            .toInt()
 
     override suspend fun prepareFileUpload(fileName: String, contentType: String, fileSize: Int): FileUploadInfo {
         logger.debug { "Preparing upload for file: $fileName, type: $contentType, size: $fileSize" }
@@ -30,7 +30,8 @@ class FileServiceImpl(
         validateContentType(contentType)
 
         val fileExtension = fileName.substringAfterLast('.', "")
-        val fileKey = "${S3Config.UPLOADS_PREFIX}${UUID.randomUUID()}${if (fileExtension.isNotEmpty()) ".$fileExtension" else ""}"
+        val fileKey =
+            "${S3Config.UPLOADS_PREFIX}${UUID.randomUUID()}${if (fileExtension.isNotEmpty()) ".$fileExtension" else ""}"
 
         val metadata = emptyMap<String, String>()
 
@@ -39,7 +40,7 @@ class FileServiceImpl(
         return FileUploadInfo(
             uploadUrl = uploadUrl,
             fileKey = fileKey,
-            expiresInSeconds = urlExpirationSeconds
+            expiresInSeconds = urlExpirationSeconds,
         )
     }
 
@@ -47,7 +48,11 @@ class FileServiceImpl(
         logger.debug { "Generating download link for file: $fileKey" }
 
         if (!fileStorage.objectExists(fileKey)) {
-            throw ResourceNotFoundException(resource = "File", identifier = fileKey, errorCode = ErrorCodes.RESOURCE_NOT_FOUND)
+            throw ResourceNotFoundException(
+                resource = "File",
+                identifier = fileKey,
+                errorCode = ErrorCodes.RESOURCE_NOT_FOUND,
+            )
         }
 
         val downloadUrl = fileStorage.generateDownloadUrl(fileKey)
@@ -56,13 +61,11 @@ class FileServiceImpl(
         return FileDownloadInfo(
             downloadUrl = downloadUrl,
             fileName = fileName,
-            expiresInSeconds = urlExpirationSeconds
+            expiresInSeconds = urlExpirationSeconds,
         )
     }
 
-    override suspend fun checkFileExists(fileKey: String): Boolean {
-        return fileStorage.objectExists(fileKey)
-    }
+    override suspend fun checkFileExists(fileKey: String): Boolean = fileStorage.objectExists(fileKey)
 
     override suspend fun deleteFile(fileKey: String): Boolean {
         logger.debug { "Deleting file: $fileKey" }
@@ -90,7 +93,7 @@ class FileServiceImpl(
         val maxSizeBytes = 10_000_000L // 10 MB
         if (fileSize <= 0 || fileSize > maxSizeBytes) {
             throw FileValidationException(
-                message = "Invalid file size. The maximum size is ${maxSizeBytes/1_000_000} MB.",
+                message = "Invalid file size. The maximum size is ${maxSizeBytes / 1_000_000} MB.",
                 errorCode = ErrorCodes.FILE_VALIDATION_ERROR,
             )
         }

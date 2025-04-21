@@ -19,8 +19,9 @@ object AuthUtils {
      * @throws AuthException If the user is not authenticated
      */
     fun getAuthenticatedUser(env: DataFetchingEnvironment): User {
-        val authContext = env.graphQlContext.get<AuthContext>("authContext")
-            ?: throw AuthException("Authentication context is missing")
+        val authContext =
+            env.graphQlContext.get<AuthContext>("authContext")
+                ?: throw AuthException("Authentication context is missing")
 
         return authContext.user ?: throw AuthException("User is not authenticated")
     }

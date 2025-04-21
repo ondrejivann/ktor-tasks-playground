@@ -10,22 +10,16 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
 
 @Single
-class TaskAttachmentServiceImpl(
-    private val taskAttachmentRepository: TaskAttachmentRepository,
-) : TaskAttachmentService {
+class TaskAttachmentServiceImpl(private val taskAttachmentRepository: TaskAttachmentRepository) : TaskAttachmentService {
     private val logger = KotlinLogging.logger {}
 
-    override suspend fun getTaskAttachmentById(id: Int): TaskAttachment? {
-        return taskAttachmentRepository.getAttachmentById(id)
-    }
+    override suspend fun getTaskAttachmentById(id: Int): TaskAttachment? = taskAttachmentRepository.getAttachmentById(id)
 
-    override suspend fun getAttachmentByFileKey(fileKey: String): TaskAttachment? {
-        return taskAttachmentRepository.getAttachmentByFileKey(fileKey)
-    }
+    override suspend fun getAttachmentByFileKey(fileKey: String): TaskAttachment? =
+        taskAttachmentRepository.getAttachmentByFileKey(fileKey)
 
-    override suspend fun getAttachmentsForTask(taskId: Int): List<TaskAttachment> {
-        return taskAttachmentRepository.getAttachmentsForTask(taskId)
-    }
+    override suspend fun getAttachmentsForTask(taskId: Int): List<TaskAttachment> =
+        taskAttachmentRepository.getAttachmentsForTask(taskId)
 
     override suspend fun addTaskAttachment(taskAttachment: TaskAttachment): TaskAttachment {
         logger.debug { "Creating new task attachment: ${taskAttachment.fileKey}" }
@@ -39,16 +33,15 @@ class TaskAttachmentServiceImpl(
             throw BusinessRuleViolationException(
                 message = "Failed to create task attachment: ${e.message}",
                 cause = e,
-                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION,
             )
         }
 
         return taskAttachmentRepository.addAttachment(taskAttachment)
     }
 
-    override suspend fun updateAttachmentUploadStatus(id: Int, uploadStatus: UploadStatus): Boolean {
-        return taskAttachmentRepository.updateAttachmentUploadStatus(id, uploadStatus)
-    }
+    override suspend fun updateAttachmentUploadStatus(id: Int, uploadStatus: UploadStatus): Boolean =
+        taskAttachmentRepository.updateAttachmentUploadStatus(id, uploadStatus)
 
     override suspend fun removeAttachment(id: Int): Boolean {
         taskAttachmentRepository.getAttachmentById(id) ?: return false

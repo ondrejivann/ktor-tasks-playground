@@ -27,21 +27,22 @@ class UserDAO(id: EntityID<Int>) : IntEntity(id) {
         authProvider = authProvider,
         providerId = providerId,
         createdAt = createdAt,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
     )
 }
 
 fun User.toDAO(): UserDAO {
-    val entity = UserDAO.findById(id) ?: UserDAO.new {
-        this.email = this@toDAO.email
-        this.passwordHash = this@toDAO.passwordHash
-        this.firstName = this@toDAO.firstName
-        this.lastName = this@toDAO.lastName
-        this.authProvider = this@toDAO.authProvider
-        this.providerId = this@toDAO.providerId
-        this.createdAt = this@toDAO.createdAt
-        this.updatedAt = this@toDAO.updatedAt
-    }
+    val entity =
+        UserDAO.findById(id) ?: UserDAO.new {
+            this.email = this@toDAO.email
+            this.passwordHash = this@toDAO.passwordHash
+            this.firstName = this@toDAO.firstName
+            this.lastName = this@toDAO.lastName
+            this.authProvider = this@toDAO.authProvider
+            this.providerId = this@toDAO.providerId
+            this.createdAt = this@toDAO.createdAt
+            this.updatedAt = this@toDAO.updatedAt
+        }
 
     return entity
 }

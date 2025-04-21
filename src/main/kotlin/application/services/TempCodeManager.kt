@@ -1,10 +1,12 @@
+@file:Suppress("ktlint:standard:no-empty-file")
+
 package application.services
 
-/**
- * Manages temporary codes used for secure token exchange.
- */
-//@Single
-//class TempCodeManager {
+// /**
+// * Manages temporary codes used for secure token exchange.
+// */
+// @Single
+// class TempCodeManager {
 //    private val logger = KotlinLogging.logger {}
 //    private val codeMap = ConcurrentHashMap<String, Pair<AuthResponse, Long>>()
 //    private val expirationTimeMs = 300_000L // 5 minut
@@ -53,4 +55,4 @@ package application.services
 //            logger.debug { "Cleaned up $removedCount expired temporary codes" }
 //        }
 //    }
-//}
+// }

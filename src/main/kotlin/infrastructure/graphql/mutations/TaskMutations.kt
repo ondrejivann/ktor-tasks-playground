@@ -3,16 +3,19 @@ package infrastructure.graphql.mutations
 import domain.model.command.CreateTaskCommand
 import domain.model.command.CreateTaskCommandResponse
 import domain.ports.driving.TaskDetailService
-import infrastructure.graphql.model.*
+import infrastructure.graphql.model.CreateTaskCommandGQL
+import infrastructure.graphql.model.PrepareTaskAttachmentUploadInputGQL
+import infrastructure.graphql.model.PriorityGQL
+import infrastructure.graphql.model.TaskOperationResultGQL
+import infrastructure.graphql.model.TaskStatusGQL
+import infrastructure.graphql.model.TaskStatusUpdateResultGQL
 import infrastructure.graphql.queries.toGQL
 import infrastructure.rest.dto.PrepareTaskAttachmentUploadRequest
 import infrastructure.rest.dto.PrepareTaskAttachmentUploadResponse
 import org.koin.core.annotation.Single
 
 @Single
-class TaskMutations(
-    private val taskDetailService: TaskDetailService,
-) {
+class TaskMutations(private val taskDetailService: TaskDetailService) {
     suspend fun addTask(input: CreateTaskCommandGQL): CreateTaskCommandResponseGQL {
         val addTaskCommandResponse = taskDetailService.addTask(input.toDomain())
         return addTaskCommandResponse.toGQL()
@@ -22,7 +25,7 @@ class TaskMutations(
         taskDetailService.updateTaskStatus(name, statusCode)
         return TaskStatusUpdateResultGQL(
             success = true,
-            message = "Task status updated successfully"
+            message = "Task status updated successfully",
         )
     }
 
@@ -30,7 +33,7 @@ class TaskMutations(
         taskDetailService.removeTask(name)
         return TaskOperationResultGQL(
             success = true,
-            message = "Task successfully removed"
+            message = "Task successfully removed",
         )
     }
 
@@ -38,15 +41,14 @@ class TaskMutations(
         name = name,
         description = description,
         priority = priority,
-        attachments = attachments.map { it.toPrepareTaskAttachmentUploadRequest() }
+        attachments = attachments.map { it.toPrepareTaskAttachmentUploadRequest() },
     )
 
-    private fun PrepareTaskAttachmentUploadInputGQL.toPrepareTaskAttachmentUploadRequest() =
-        PrepareTaskAttachmentUploadRequest(
-            fileName = fileName,
-            contentType = contentType,
-            fileSize = fileSize,
-        )
+    private fun PrepareTaskAttachmentUploadInputGQL.toPrepareTaskAttachmentUploadRequest() = PrepareTaskAttachmentUploadRequest(
+        fileName = fileName,
+        contentType = contentType,
+        fileSize = fileSize,
+    )
 }
 
 data class CreateTaskCommandResponseGQL(
@@ -58,12 +60,7 @@ data class CreateTaskCommandResponseGQL(
     val attachments: List<TaskAttachmentUploadInfoGQL> = emptyList(),
 )
 
-data class TaskAttachmentUploadInfoGQL(
-    val id: Int,
-    val uploadUrl: String,
-    val fileKey: String,
-    val expiresInSeconds: Int,
-)
+data class TaskAttachmentUploadInfoGQL(val id: Int, val uploadUrl: String, val fileKey: String, val expiresInSeconds: Int)
 
 fun PrepareTaskAttachmentUploadResponse.toGQL() = TaskAttachmentUploadInfoGQL(
     id = id,
@@ -72,14 +69,13 @@ fun PrepareTaskAttachmentUploadResponse.toGQL() = TaskAttachmentUploadInfoGQL(
     expiresInSeconds = expiresInSeconds,
 )
 
-fun CreateTaskCommandResponse.toGQL(): CreateTaskCommandResponseGQL =
-    CreateTaskCommandResponseGQL(
-        id = id.toString(),
-        name = name,
-        description = description,
-        priority = priority.toGQL(),
-        status = status.toGQL(),
-        attachments = attachments.map {
-            it.toGQL()
-        }
-    )
+fun CreateTaskCommandResponse.toGQL(): CreateTaskCommandResponseGQL = CreateTaskCommandResponseGQL(
+    id = id.toString(),
+    name = name,
+    description = description,
+    priority = priority.toGQL(),
+    status = status.toGQL(),
+    attachments = attachments.map {
+        it.toGQL()
+    },
+)

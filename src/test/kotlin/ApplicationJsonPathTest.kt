@@ -1,20 +1,13 @@
 package com.example
 
-import application.services.TaskServiceImpl
-import com.jayway.jsonpath.DocumentContext
-import com.jayway.jsonpath.JsonPath
-import domain.model.Priority
-import infrastructure.rest.config.configureRestRoutes
-import io.ktor.client.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.routing.*
-import io.ktor.server.testing.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+//import io.ktor.client.*
+//import io.ktor.client.plugins.contentnegotiation.*
+//import io.ktor.client.request.*
+//import io.ktor.client.statement.*
+//import io.ktor.http.*
+//import io.ktor.serialization.kotlinx.json.*
+//import io.ktor.server.routing.*
+//import io.ktor.server.testing.*
 
 class ApplicationJsonPathTest {
 //    @Test

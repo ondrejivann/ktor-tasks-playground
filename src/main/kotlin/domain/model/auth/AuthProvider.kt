@@ -16,9 +16,10 @@ enum class AuthProvider {
      * Users with this provider will have a non-null passwordHash.
      */
     LOCAL,
+
     /**
      * Authentication through Google OAuth 2.0.
      * Users with this provider will have null passwordHash and non-null providerId.
      */
-    GOOGLE
+    GOOGLE,
 }

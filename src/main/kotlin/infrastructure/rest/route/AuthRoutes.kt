@@ -1,11 +1,13 @@
 package infrastructure.rest.route
 
 import infrastructure.rest.controller.AuthController
-import io.ktor.server.auth.*
-import io.ktor.server.routing.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.post
+import io.ktor.server.routing.route
 
 fun Route.authRoutes(authController: AuthController) {
-
     route("/auth") {
         // Registrace nového uživatele
         post("/register") {

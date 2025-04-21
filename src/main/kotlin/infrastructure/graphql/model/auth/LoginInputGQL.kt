@@ -7,5 +7,5 @@ data class LoginInputGQL(
     @GraphQLDescription("User email")
     val email: String,
     @GraphQLDescription("User password")
-    val password: String
+    val password: String,
 )

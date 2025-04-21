@@ -9,16 +9,16 @@ data class TaskFilter(
     val descriptionContains: String? = null,
     val searchText: String? = null,
     val sortBy: TaskSortField? = null,
-    val sortDirection: SortDirection? = SortDirection.ASC
+    val sortDirection: SortDirection? = SortDirection.ASC,
 )
 
 enum class TaskSortField {
     NAME,
     PRIORITY,
-    STATUS
+    STATUS,
 }
 
 enum class SortDirection {
     ASC,
-    DESC
+    DESC,
 }

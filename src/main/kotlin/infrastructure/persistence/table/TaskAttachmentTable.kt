@@ -8,6 +8,7 @@ object TaskAttachmentTable : IntIdTable("task_attachments") {
     val fileKey = varchar("file_key", 255)
     val fileName = varchar("file_name", 255)
     val contentType = varchar("content_type", 100)
-    val uploadStatus = enumerationByName("upload_status", 20, UploadStatus::class)
-        .default(UploadStatus.PENDING)
+    val uploadStatus =
+        enumerationByName("upload_status", 20, UploadStatus::class)
+            .default(UploadStatus.PENDING)
 }

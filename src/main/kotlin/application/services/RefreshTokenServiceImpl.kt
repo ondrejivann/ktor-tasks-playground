@@ -8,21 +8,20 @@ import org.koin.core.annotation.Single
 import java.time.LocalDateTime
 
 @Single(binds = [RefreshTokenService::class])
-class RefreshTokenServiceImpl(
-    private val repository: RefreshTokenRepository
-) : RefreshTokenService {
+class RefreshTokenServiceImpl(private val repository: RefreshTokenRepository) : RefreshTokenService {
     private val logger = KotlinLogging.logger {}
 
     override suspend fun createToken(userId: Int, token: String, expiresAt: LocalDateTime): RefreshToken {
         logger.debug { "Creating refresh token for user: $userId" }
 
-        val refreshToken = RefreshToken(
-            id = -1, // Temporary ID
-            userId = userId,
-            token = token,
-            expiresAt = expiresAt,
-            createdAt = LocalDateTime.now()
-        )
+        val refreshToken =
+            RefreshToken(
+                id = -1, // Temporary ID
+                userId = userId,
+                token = token,
+                expiresAt = expiresAt,
+                createdAt = LocalDateTime.now(),
+            )
 
         return repository.save(refreshToken).also {
             logger.debug { "Refresh token created for user: $userId" }

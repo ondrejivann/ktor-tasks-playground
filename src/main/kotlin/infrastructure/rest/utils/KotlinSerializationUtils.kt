@@ -1,9 +1,10 @@
 package infrastructure.rest.utils
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receiveText
+import io.ktor.server.response.respondText
 import kotlinx.serialization.json.Json
 
 internal object KotlinSerializationUtils {
@@ -33,14 +34,10 @@ internal object KotlinSerializationUtils {
     /**
      * Serialize object to JSON string
      */
-    inline fun <reified T> toJson(obj: T): String {
-        return json.encodeToString(obj)
-    }
+    inline fun <reified T> toJson(obj: T): String = json.encodeToString(obj)
 
     /**
      * Deserialize JSON string to object
      */
-    inline fun <reified T> fromJson(jsonString: String): T {
-        return json.decodeFromString(jsonString)
-    }
+    inline fun <reified T> fromJson(jsonString: String): T = json.decodeFromString(jsonString)
 }

@@ -15,7 +15,7 @@ import domain.ports.driven.UserRepository
 import domain.ports.driving.RefreshTokenService
 import domain.ports.driving.UserService
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.server.config.*
+import io.ktor.server.config.ApplicationConfig
 import org.koin.core.annotation.Single
 import java.time.LocalDateTime
 
@@ -45,25 +45,29 @@ class UserServiceImpl(
             logger.warn { "Registration failed: User with email ${command.email} already exists" }
             throw ValidationException(
                 message = "User with this email already exists",
-                errorCode = ErrorCodes.VALIDATION_ERROR
+                errorCode = ErrorCodes.VALIDATION_ERROR,
             )
         }
 
-        val passwordHash = if (command.authProvider == AuthProvider.LOCAL) {
-            passwordHashPort.hash(command.password)
-        } else null
+        val passwordHash =
+            if (command.authProvider == AuthProvider.LOCAL) {
+                passwordHashPort.hash(command.password)
+            } else {
+                null
+            }
 
-        val user = User(
-            id = -1, // Temporary ID, will be replaced by database
-            email = command.email,
-            passwordHash = passwordHash,
-            firstName = command.firstName,
-            lastName = command.lastName,
-            authProvider = command.authProvider,
-            providerId = command.providerId,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        )
+        val user =
+            User(
+                id = -1, // Temporary ID, will be replaced by database
+                email = command.email,
+                passwordHash = passwordHash,
+                firstName = command.firstName,
+                lastName = command.lastName,
+                authProvider = command.authProvider,
+                providerId = command.providerId,
+                createdAt = LocalDateTime.now(),
+                updatedAt = LocalDateTime.now(),
+            )
 
         try {
             val createdUser = userRepository.create(user)
@@ -75,21 +79,21 @@ class UserServiceImpl(
             refreshTokenService.createToken(
                 userId = createdUser.id,
                 token = refreshToken,
-                expiresAt = LocalDateTime.now().plusDays(30)
+                expiresAt = LocalDateTime.now().plusDays(30),
             )
 
             return AuthResponse(
                 accessToken = accessToken,
                 refreshToken = refreshToken,
                 user = createdUser,
-                expiresIn = accessTokenLifetime
+                expiresIn = accessTokenLifetime,
             )
         } catch (e: Exception) {
             logger.error(e) { "Failed to register user: ${e.message}" }
             throw BusinessRuleViolationException(
                 message = "Failed to register user: ${e.message}",
                 cause = e,
-                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION
+                errorCode = ErrorCodes.BUSINESS_RULE_VIOLATION,
             )
         }
     }
@@ -97,16 +101,17 @@ class UserServiceImpl(
     override suspend fun authenticateUser(email: String, password: String): AuthResponse {
         logger.debug { "Authenticating user: $email" }
 
-        val user = userRepository.findByEmail(email) ?: throw AuthException(
-            message = "Invalid credentials",
-            errorCode = ErrorCodes.INVALID_CREDENTIALS
-        )
+        val user =
+            userRepository.findByEmail(email) ?: throw AuthException(
+                message = "Invalid credentials",
+                errorCode = ErrorCodes.INVALID_CREDENTIALS,
+            )
 
         if (user.authProvider != AuthProvider.LOCAL || user.passwordHash == null) {
             logger.warn { "Authentication failed: User ${user.id} uses external authentication" }
             throw AuthException(
                 message = "This account uses external authentication",
-                errorCode = ErrorCodes.INVALID_CREDENTIALS
+                errorCode = ErrorCodes.INVALID_CREDENTIALS,
             )
         }
 
@@ -114,7 +119,7 @@ class UserServiceImpl(
             logger.warn { "Authentication failed: Invalid password for user ${user.id}" }
             throw AuthException(
                 message = "Invalid credentials",
-                errorCode = ErrorCodes.INVALID_CREDENTIALS
+                errorCode = ErrorCodes.INVALID_CREDENTIALS,
             )
         }
 
@@ -126,37 +131,39 @@ class UserServiceImpl(
         refreshTokenService.createToken(
             userId = user.id,
             token = refreshToken,
-            expiresAt = LocalDateTime.now().plusDays(30)
+            expiresAt = LocalDateTime.now().plusDays(30),
         )
 
         return AuthResponse(
             accessToken = accessToken,
             refreshToken = refreshToken,
             user = user,
-            expiresIn = accessTokenLifetime
+            expiresIn = accessTokenLifetime,
         )
     }
 
     override suspend fun refreshToken(token: String): AuthResponse {
         logger.debug { "Refreshing token" }
 
-        val refreshTokenObj = refreshTokenService.findByToken(token) ?: throw AuthException(
-            message = "Invalid refresh token",
-            errorCode = ErrorCodes.INVALID_TOKEN
-        )
+        val refreshTokenObj =
+            refreshTokenService.findByToken(token) ?: throw AuthException(
+                message = "Invalid refresh token",
+                errorCode = ErrorCodes.INVALID_TOKEN,
+            )
 
         if (refreshTokenObj.expiresAt.isBefore(LocalDateTime.now())) {
             logger.warn { "Token refresh failed: Token expired" }
             throw AuthException(
                 message = "Refresh token expired",
-                errorCode = ErrorCodes.TOKEN_EXPIRED
+                errorCode = ErrorCodes.TOKEN_EXPIRED,
             )
         }
 
-        val user = userRepository.findById(refreshTokenObj.userId) ?: throw EntityNotFoundException(
-            entity = "User",
-            identifier = refreshTokenObj.userId
-        )
+        val user =
+            userRepository.findById(refreshTokenObj.userId) ?: throw EntityNotFoundException(
+                entity = "User",
+                identifier = refreshTokenObj.userId,
+            )
 
         // Invalidate old token
         refreshTokenService.invalidateToken(token)
@@ -168,7 +175,7 @@ class UserServiceImpl(
         refreshTokenService.createToken(
             userId = user.id,
             token = newRefreshToken,
-            expiresAt = LocalDateTime.now().plusDays(30)
+            expiresAt = LocalDateTime.now().plusDays(30),
         )
 
         logger.info { "Token refreshed successfully for user ${user.id}" }
@@ -177,7 +184,7 @@ class UserServiceImpl(
             accessToken = accessToken,
             refreshToken = newRefreshToken,
             user = user,
-            expiresIn = accessTokenLifetime
+            expiresIn = accessTokenLifetime,
         )
     }
 
@@ -185,7 +192,7 @@ class UserServiceImpl(
         logger.debug { "Getting user by ID: $id" }
         return userRepository.findById(id) ?: throw EntityNotFoundException(
             entity = "User",
-            identifier = id
+            identifier = id,
         )
     }
 
@@ -296,7 +303,7 @@ class UserServiceImpl(
         if (email.isBlank()) {
             throw ValidationException(
                 message = "Email cannot be empty",
-                errorCode = ErrorCodes.VALIDATION_ERROR
+                errorCode = ErrorCodes.VALIDATION_ERROR,
             )
         }
 
@@ -304,7 +311,7 @@ class UserServiceImpl(
         if (!emailRegex.matches(email)) {
             throw ValidationException(
                 message = "Invalid email format",
-                errorCode = ErrorCodes.VALIDATION_ERROR
+                errorCode = ErrorCodes.VALIDATION_ERROR,
             )
         }
     }
@@ -313,14 +320,14 @@ class UserServiceImpl(
         if (password.isBlank()) {
             throw ValidationException(
                 message = "Password cannot be empty",
-                errorCode = ErrorCodes.VALIDATION_ERROR
+                errorCode = ErrorCodes.VALIDATION_ERROR,
             )
         }
 
         if (password.length < 8) {
             throw ValidationException(
                 message = "Password must be at least 8 characters long",
-                errorCode = ErrorCodes.VALIDATION_ERROR
+                errorCode = ErrorCodes.VALIDATION_ERROR,
             )
         }
     }

@@ -8,5 +8,5 @@ data class FileUploadResultGQL(
     val uploadUrl: String? = null,
     val fileKey: String? = null,
     val expiresInSeconds: Int? = null,
-    val message: String? = null
+    val message: String? = null,
 )

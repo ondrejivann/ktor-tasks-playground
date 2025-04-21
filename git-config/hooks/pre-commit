@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo '[git hook] executing gradle detekt formatter before commit'
+
+./gradlew ktlintFormat
+RESULT=$?
+
+if [ $RESULT -ne 0 ]; then
+  echo 'ktlintFormat failed'
+  exit $RESULT
+fi
+
+exit 0

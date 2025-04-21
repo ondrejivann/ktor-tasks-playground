@@ -24,17 +24,18 @@ class RequireAuthDirectiveWiring : KotlinSchemaDirectiveWiring {
         val originalDataFetcher = environment.getDataFetcher()
 
         // Vytvoříme nový DataFetcher, který ověří autentizaci před zavoláním původního DataFetcheru
-        val authCheckingFetcher = DataFetcherFactories.wrapDataFetcher(
-            originalDataFetcher,
-            { dataEnv, value ->
-                val authContext = dataEnv.graphQlContext.get<AuthContext>("authContext")
-                if (authContext == null || !authContext.isAuthenticated) {
-                    throw AuthException("Authentication required")
-                }
-                // Pokud je autentizace úspěšná, vrátíme původní hodnotu
-                value
-            }
-        )
+        val authCheckingFetcher =
+            DataFetcherFactories.wrapDataFetcher(
+                originalDataFetcher,
+                { dataEnv, value ->
+                    val authContext = dataEnv.graphQlContext.get<AuthContext>("authContext")
+                    if (authContext == null || !authContext.isAuthenticated) {
+                        throw AuthException("Authentication required")
+                    }
+                    // Pokud je autentizace úspěšná, vrátíme původní hodnotu
+                    value
+                },
+            )
 
         // Nastavíme upravený DataFetcher
         environment.setDataFetcher(authCheckingFetcher)
