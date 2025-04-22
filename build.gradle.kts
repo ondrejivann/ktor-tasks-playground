@@ -62,7 +62,7 @@ dependencies {
     implementation(libs.ktor.server.status.pages)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.cors)
-    // implementation(libs.ktor.server.routing)
+    implementation(libs.ktor.server.rate.limit)
 
     // Swagger and OpenAPI
     implementation(libs.ktor.server.swagger)

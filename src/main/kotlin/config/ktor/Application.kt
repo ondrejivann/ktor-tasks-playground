@@ -25,6 +25,7 @@ fun Application.module() {
     https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
      */
     // configureContentNegotiation()
+    rateLimit()
     configureStatusPages()
     configureKoin()
     configureCORS()
