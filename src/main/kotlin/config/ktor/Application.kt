@@ -1,6 +1,5 @@
 package config.ktor
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.Application
 import io.ktor.server.engine.CommandLineConfig
 import io.ktor.server.engine.embeddedServer
@@ -18,13 +17,9 @@ fun main(args: Array<String>) {
     ).start(wait = true)
 }
 
-@Suppress("ktlint:standard:no-consecutive-comments")
+@Suppress("unused")
 fun Application.module() {
-    logger.info { "Ktor is starting..." }
-    /*
-    https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
-     */
-    // configureContentNegotiation()
+    // configureContentNegotiation() // https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
     rateLimit()
     configureStatusPages()
     configureKoin()
@@ -36,5 +31,3 @@ fun Application.module() {
     configureOpenAPI()
     configureCallLogging()
 }
-
-private val logger = KotlinLogging.logger {}

@@ -10,13 +10,12 @@ import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 
 fun Application.configureKoin() {
+    val envModule = module {
+        single { environment.config }
+    }
+
     install(Koin) {
         slf4jLogger()
-        modules(AppModule().module, httpClientModule)
-        modules(
-            module {
-                single { environment.config }
-            },
-        )
+        modules(AppModule().module, httpClientModule, envModule)
     }
 }
