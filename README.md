@@ -12,6 +12,7 @@ Kompletní průvodce technologiemi a architekturou použitými v projektu.
 - [Logování](#logování)
 - [Databáze](#databáze)
 - [Auth](#jwt-autentizace-s-ktor-auth-pluginem-kompletní-přehled)
+- [Docker](#docker)
 - [Pre-signed URL a AWS S3](#aws-s3-a-pre-signed-url)
 
 ## Architektura
@@ -599,6 +600,24 @@ Ktor poskytuje plugin `ktor-auth-jwt`, který usnadňuje implementaci JWT autent
 
 JWT autentizace v Ktoru nabízí moderní, bezpečný a škálovatelný způsob autentizace uživatelů, který dobře vyhovuje RESTful API a je vhodný jak pro webové, tak mobilní klienty. I když vyžaduje více nastavení než tradiční sessions, poskytuje větší flexibilitu a lepší uživatelský zážitek, zejména v distribuovaných systémech.
 
+## Docker
+
+Docker je platforma pro vývoj, nasazení a spouštění aplikací v izolovaných prostředích nazývaných kontejnery. Kontejnery umožňují vývojářům zabalit aplikaci se všemi potřebnými závislostmi (knihovny, runtime, systémové nástroje) do standardizovaného celku, který bude fungovat konzistentně bez ohledu na prostředí, kde běží. Docker kontejnery jsou lehčí než virtuální stroje, sdílejí jádro hostitelského systému, a přesto poskytují kompletní izolaci procesů, souborového systému a síťových prostředků.
+
+**Klíčové koncepty:**
+- **Image** - šablona obsahující kód, runtime, knihovny a závislosti potřebné pro běh aplikace
+- **Kontejner** - spuštěná instance image, izolovaný běhový prostor
+- **Dockerfile** - textový soubor s instrukcemi pro sestavení Docker image
+- **Docker Compose** - nástroj pro definici a spouštění multi-kontejnerových aplikací
+
+**Docker v kontextu projektu:**
+V našem projektu využíváme Docker primárně pro:
+- Provozování lokálního vývojového prostředí s MinIO jako alternativou k AWS S3
+- Zajištění konzistentního vývojového prostředí napříč týmem
+- Izolaci závislostí a služeb potřebných pro vývoj
+
+Díky Dockeru a Docker Compose můžeme jednoduše spustit pomocné služby jako je MinIO nebo databáze bez nutnosti jejich instalace přímo na vývojářský stroj. Tento přístup zajišťuje, že všichni členové týmu pracují se stejnou konfigurací služeb, což eliminuje problémy typu "u mě to funguje".
+
 ## AWS S3 a Pre-signed URL
 
 ### Amazon S3 - Simple Storage Service
@@ -704,6 +723,66 @@ V kontextu AWS S3 pre-signed URL umožňuje generovat dočasný přístupový od
 
 Pre-signed URL v kombinaci s AWS S3 představuje elegantní, bezpečné a vysoce škálovatelné řešení pro správu uživatelských souborů v moderních cloudových aplikacích, které minimalizuje zátěž aplikačních serverů a poskytuje výborný uživatelský zážitek.
 
+### MinIO jako lokální alternativa k AWS S3
+
+MinIO je high-performance, S3-kompatibilní objektové úložiště, které lze provozovat lokálně jako alternativu k AWS S3. Jedná se o open-source řešení napsané v Go, které implementuje stejné API jako Amazon S3, což umožňuje vyvíjet aplikace proti lokálnímu úložišti a později bezproblémově přejít na produkční S3. MinIO poskytuje plnou kompatibilitu s S3 API včetně pre-signed URL, což je klíčové pro naši implementaci nahrávání a stahování souborů.
+
+**Výhody použití MinIO pro vývoj:**
+- Eliminace nákladů spojených s AWS S3 během vývoje a testování
+- Odstranění závislosti na připojení k internetu během vývoje
+- Vyšší rychlost díky lokálnímu přístupu
+- Plná kontrola nad prostředím včetně konfigurace a logování
+- Žádná omezení na počet požadavků nebo velikost dat v rámci free tierů
+
+**Integrace MinIO pomocí Dockeru:**
+V našem projektu je MinIO nasazeno jako Docker kontejner definovaný v `docker-compose.yml`:
+
+```yaml
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio_local
+    ports:
+      - "9000:9000" # API port
+      - "9001:9001" # Konzole/UI port
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+```
+
+Tento kontejner poskytuje:
+- S3-kompatibilní API na portu 9000
+- Webové administrační rozhraní na portu 9001
+- Perzistentní úložiště dat pomocí Docker volume
+
+**Klíčové změny pro výměnu AWS S3 za MinIO:**
+
+Díky hexagonální architektuře projektu a rozhraní `FileStoragePort` byla výměna implementace minimálně invazivní. Hlavní změny:
+
+1. **Konfigurace endpointu a přihlašovacích údajů** - přidání možnosti specifikovat vlastní S3 endpoint a přihlašovací údaje pro lokální prostředí:
+   ```
+   AWS_S3_ENDPOINT=http://localhost:9000
+   AWS_ACCESS_KEY_ID=minioadmin
+   AWS_SECRET_KEY=minioadmin
+   ```
+
+2. **Podpora path-style přístupu** - povolení path-style URL formátu (http://endpoint/bucket/key místo virtualhostingu http://bucket.endpoint/key):
+   ```
+   AWS_S3_PATH_STYLE_ACCESS=true
+   ```
+
+3. **Úprava S3 klienta** - rozšíření `S3ClientFactory` o možnost použít vlastní endpoint a path-style access:
+   ```kotlin
+   s3Endpoint?.let {
+       this.endpointUrl = aws.sdk.kotlin.runtime.http.Url.parse(it)
+       this.forcePathStyle = pathStyleAccess
+   }
+   ```
+
+Toto řešení umožňuje jednoduše přepínat mezi lokálním MinIO v development prostředí a AWS S3 v produkci pouhým nastavením příslušných konfiguračních hodnot. Díky identickému API může aplikační kód zůstat nezměněn, zatímco vývojáři mohou pracovat s lokálním úložištěm bez nutnosti AWS přístupu nebo poplatků.
 
 ---
 
