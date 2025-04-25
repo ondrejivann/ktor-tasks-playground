@@ -785,4 +785,5 @@ Díky hexagonální architektuře projektu a rozhraní `FileStoragePort` byla v�
 Toto řešení umožňuje jednoduše přepínat mezi lokálním MinIO v development prostředí a AWS S3 v produkci pouhým nastavením příslušných konfiguračních hodnot. Díky identickému API může aplikační kód zůstat nezměněn, zatímco vývojáři mohou pracovat s lokálním úložištěm bez nutnosti AWS přístupu nebo poplatků.
 
 ---
+
 Tento průvodce pokrývá hlavní technologie a koncepty použité v projektu. Pro detailnější informace k jednotlivým technologiím navštivte jejich oficiální dokumentaci.
