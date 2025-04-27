@@ -4,7 +4,7 @@ import config.db.DatabaseConfig
 import config.db.DatabaseFactory
 import io.ktor.server.application.Application
 
-fun Application.configureDatabases() {
+fun Application.configureDatabase() {
     val config = environment.config
 
     val dbConfig =
