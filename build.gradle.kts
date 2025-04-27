@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
@@ -6,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.shadow)
 }
 
 group = "com.example"
@@ -40,8 +42,24 @@ ktlint {
 }
 
 tasks {
-    //register<InstallGitHooksTask>("installGitHooks")
+    // Nejprve se ujistěte, že máte plugin shadow přidán (viz výše).
+    // Pak nakonfigurujte ShadowJar task:
+    named<ShadowJar>("shadowJar") {
+        // sloučí všechny META-INF/services/* soubory z závislostí do jednoho
+        mergeServiceFiles()
+        // nepřidá k názvu "-all"
+        archiveClassifier.set("")
+    }
+
+    // Aby se fat-jar postavil vždy s buildem:
+    named("build") {
+        dependsOn(named("shadowJar"))
+    }
 }
+
+//tasks {
+//register<InstallGitHooksTask>("installGitHooks")
+//}
 // tasks.getByPath("build").dependsOn("installGitHooks")
 
 dependencies {
