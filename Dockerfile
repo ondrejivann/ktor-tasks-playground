@@ -8,6 +8,7 @@ WORKDIR /app
 # Zkopíruj build skripty a wrapper pro cachování závislostí
 COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
+COPY buildSrc ./buildSrc
 
 # Stáhni závislosti (tento krok se cachuje, pokud se build skripty nezmění)
 # Můžeš spustit jenom 'dependencies' task, pokud chceš jen stáhnout závislosti
