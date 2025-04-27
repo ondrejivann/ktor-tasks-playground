@@ -40,7 +40,7 @@ ktlint {
 }
 
 tasks {
-    register<InstallGitHooksTask>("installGitHooks")
+    //register<InstallGitHooksTask>("installGitHooks")
 }
 tasks.getByPath("build").dependsOn("installGitHooks")
 
