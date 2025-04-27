@@ -42,7 +42,7 @@ ktlint {
 tasks {
     //register<InstallGitHooksTask>("installGitHooks")
 }
-tasks.getByPath("build").dependsOn("installGitHooks")
+// tasks.getByPath("build").dependsOn("installGitHooks")
 
 dependencies {
     implementation(libs.ktor.server.core)
