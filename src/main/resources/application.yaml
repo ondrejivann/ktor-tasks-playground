@@ -16,7 +16,7 @@ ktor:
 database:
     driverClassName: org.postgresql.Driver
     jdbcURL: "$JDBC_DATABASE_URL"
-    defaultJdbcURL: "jdbc:postgresql://localhost:5432/postgres"
+    defaultJdbcURL: "$DEFAULT_JDBC_DATABASE_URL"
     user: "$DB_USER"
     password: "$DB_PASSWORD"
     dbName: "$DB_NAME"
