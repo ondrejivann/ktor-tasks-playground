@@ -49,6 +49,7 @@ object DatabaseFactory {
                     .locations("classpath:db/migrations")
                     .baselineOnMigrate(true)
                     .validateMigrationNaming(true)
+                    .loggers("slf4j")
                     .load()
 
             flyway.migrate()
