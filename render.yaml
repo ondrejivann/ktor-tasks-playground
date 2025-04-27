@@ -1,0 +1,18 @@
+# render.yaml (pro Dev prostředí)
+services:
+  - type: web
+    name: ktor-todo-app-dev # Název služby v Renderu
+    region: frankfurt # Nebo region, kde máš Dev DB
+    plan: free # Nebo jiný plán pro Dev
+    branch: dev # Důležité: Nasazuje se z této větve
+    envVars:
+      # Neuvádíme zde specifické hodnoty, protože je načteme z Environment Group
+      # Můžeme zde uvést klíče, které očekáváme, pro dokumentaci, ale není to nutné
+      # - key: JDBC_DATABASE_URL
+      #   fromGroup: ktor-dev-env # Toto propojení uděláme v UI
+      # - key: JWT_SECRET
+      #   fromGroup: ktor-dev-env
+      # ... atd.
+      # Důležité: Render automaticky poskytne PORT, tvůj kód ho musí číst.
+      - key: PORT # Jen připomínka, Render ji nastaví
+    runtime: docker
