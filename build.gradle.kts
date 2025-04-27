@@ -42,25 +42,19 @@ ktlint {
 }
 
 tasks {
-    // Nejprve se ujistěte, že máte plugin shadow přidán (viz výše).
-    // Pak nakonfigurujte ShadowJar task:
     named<ShadowJar>("shadowJar") {
         // sloučí všechny META-INF/services/* soubory z závislostí do jednoho
         mergeServiceFiles()
-        // nepřidá k názvu "-all"
         archiveClassifier.set("")
     }
 
-    // Aby se fat-jar postavil vždy s buildem:
+    val installGitHooks by registering(InstallGitHooksTask::class)
+
     named("build") {
         dependsOn(named("shadowJar"))
+        dependsOn(installGitHooks)
     }
 }
-
-//tasks {
-//register<InstallGitHooksTask>("installGitHooks")
-//}
-// tasks.getByPath("build").dependsOn("installGitHooks")
 
 dependencies {
     implementation(libs.ktor.server.core)

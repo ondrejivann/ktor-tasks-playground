@@ -9,8 +9,14 @@ open class InstallGitHooksTask : DefaultTask() {
 
     @TaskAction
     fun install() {
+        val gitDir = project.rootDir.resolve(".git")
         val sourceDir = project.file("git-config/hooks")
         val targetDir = project.file(".git/hooks")
+
+        if (!gitDir.exists()) {
+            logger.lifecycle("No .git directory found; skipping Git hooks installation.")
+            return
+        }
 
         if (!targetDir.exists()) {
             targetDir.mkdirs()
