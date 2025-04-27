@@ -14,6 +14,8 @@ object DatabaseFactory {
 
     fun init(config: DatabaseConfig) {
         try {
+            logger.info("Initializing HikariDataSource with URL: ${config.jdbcURL}") // Použij skutečné proměnné
+            logger.info("Initializing HikariDataSource with User: ${config.user}")
             // Vytvoření databáze pomocí základního připojení
             createDatabaseIfNotExists(config)
 
