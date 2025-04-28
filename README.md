@@ -14,6 +14,7 @@ Kompletní průvodce technologiemi a architekturou použitými v projektu.
 - [Auth](#jwt-autentizace-s-ktor-auth-pluginem-kompletní-přehled)
 - [Docker](#docker)
 - [Pre-signed URL a AWS S3](#aws-s3-a-pre-signed-url)
+- [Poznámky](#poznámky)
 
 ## Architektura
 
@@ -783,6 +784,64 @@ Díky hexagonální architektuře projektu a rozhraní `FileStoragePort` byla v�
    ```
 
 Toto řešení umožňuje jednoduše přepínat mezi lokálním MinIO v development prostředí a AWS S3 v produkci pouhým nastavením příslušných konfiguračních hodnot. Díky identickému API může aplikační kód zůstat nezměněn, zatímco vývojáři mohou pracovat s lokálním úložištěm bez nutnosti AWS přístupu nebo poplatků.
+
+## Poznámky
+
+### Vytvoření spustitelného JAR souboru pro produkční nasazení
+
+Při vývoji Java/Kotlin aplikací často narážíme na problém s distribucí aplikace do produkčního prostředí. Standardní JAR soubor vytvořený pomocí Gradle obsahuje pouze náš aplikační kód, ale ne externí knihovny (dependencies), které aplikace potřebuje pro svůj běh. To znamená, že když se pokusíme takový JAR spustit na produkčním serveru, aplikace selže, protože nemůže najít potřebné knihovny.
+
+#### Řešení pomocí Shadow pluginu
+
+Pro řešení tohoto problému používáme Gradle Shadow plugin, který umí vytvořit tzv. "fat JAR" nebo "uber JAR". Jedná se o samostatný spustitelný JAR soubor, který obsahuje:
+- Náš aplikační kód
+- Všechny externí knihovny (dependencies)
+- Potřebné konfigurační soubory
+- Další zdroje (resources) jako jsou migrační skripty, statické soubory, atd.
+
+#### Implementace
+
+1. Přidání Shadow pluginu do projektu:
+```kotlin
+plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+}
+```
+
+2. Konfigurace vytváření JAR souboru:
+```kotlin
+tasks {
+    named<ShadowJar>("shadowJar") {
+        mergeServiceFiles()  // Zajistí správné sloučení service souborů
+        archiveClassifier.set("")
+    }
+}
+```
+
+#### Výhody tohoto přístupu
+
+- **Jednoduchost nasazení**: Stačí přenést jediný JAR soubor na server
+- **Konzistence**: Máme jistotu, že všechny závislosti jsou ve správných verzích
+- **Izolace**: Aplikace není závislá na knihovnách instalovaných na cílovém systému
+- **Přenositelnost**: JAR bude fungovat na jakémkoliv systému s nainstalovanou Javou
+
+#### Použití v produkci
+
+Vytvořený JAR soubor najdete po buildu v adresáři `build/libs/` pod názvem `ktor-exposed-task-app.jar`. Tento soubor můžete spustit přímo pomocí:
+
+```bash
+java -jar ktor-exposed-task-app.jar
+```
+
+Nebo jej použít v Dockeru:
+
+```dockerfile
+FROM openjdk:17-jdk-slim
+COPY build/libs/ktor-exposed-task-app.jar app.jar
+CMD ["java", "-jar", "app.jar"]
+```
+
+Tento přístup je standardním způsobem distribuce Java/Kotlin aplikací a zajišťuje spolehlivé nasazení do produkčního prostředí.
 
 ---
 
