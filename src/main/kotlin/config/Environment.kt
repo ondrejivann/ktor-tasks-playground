@@ -9,7 +9,7 @@ enum class Environment(val envValue: String) {
         private const val ENV_VAR_NAME = "KTOR_ENV"
 
         val current: Environment by lazy {
-            when (System.getenv(ENV_VAR_NAME) ?: System.getProperty(ENV_VAR_NAME)?.uppercase()) {
+            when ((System.getenv(ENV_VAR_NAME) ?: System.getProperty(ENV_VAR_NAME))?.uppercase()) {
                 "PROD", "PRODUCTION" -> PRODUCTION
                 "DEV", "DEVELOPMENT" -> DEVELOPMENT
                 else -> {
