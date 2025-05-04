@@ -1,39 +1,39 @@
 ktor:
-    application:
-        modules:
-            - config.ktor.ApplicationKt.module
-    deployment:
-        port: 8080
+  application:
+    modules:
+      - config.ktor.ApplicationKt.module
+  deployment:
+    port: "$PORT"
 
-    aws:
-        s3:
-            region: "$AWS_REGION"
-            bucketName: "$AWS_S3_BUCKET_NAME"
-            accessKey: "$AWS_ACCESS_KEY_ID"
-            secretKey: "$AWS_SECRET_ACCESS_KEY"
-            urlExpirationSeconds: 3600
+  aws:
+    s3:
+      region: "$AWS_REGION"
+      bucketName: "$AWS_S3_BUCKET_NAME"
+      accessKey: "$AWS_ACCESS_KEY_ID"
+      secretKey: "$AWS_SECRET_ACCESS_KEY"
+      urlExpirationSeconds: 3600
 
 database:
-    driverClassName: org.postgresql.Driver
-    jdbcURL: "$JDBC_DATABASE_URL"
-    defaultJdbcURL: "$DEFAULT_JDBC_DATABASE_URL"
-    user: "$DB_USER"
-    password: "$DB_PASSWORD"
-    dbName: "$DB_NAME"
+  driverClassName: org.postgresql.Driver
+  jdbcURL: "$JDBC_DATABASE_URL"
+  defaultJdbcURL: "$DEFAULT_JDBC_DATABASE_URL"
+  user: "$DB_USER"
+  password: "$DB_PASSWORD"
+  dbName: "$DB_NAME"
 
 flyway:
-    url: "$JDBC_DATABASE_URL"
-    user: "$DB_USER"
-    password: "$DB_PASSWORD"
-    locations: "classpath:db/migrations"
-    baselineOnMigrate: true
+  url: "$JDBC_DATABASE_URL"
+  user: "$DB_USER"
+  password: "$DB_PASSWORD"
+  locations: "classpath:db/migrations"
+  baselineOnMigrate: true
 
 jwt:
-    secret: "$JWT_SECRET"
-    issuer: "$JWT_ISSUER"
-    audience: "$JWT_AUDIENCE"
-    realm: "ktor-app"
-    accessToken:
-        lifetime: 3600000  # 1 hodina v milisekundách
-    refreshToken:
-        lifetime: 2592000000  # 30 dní v milisekundách
+  secret: "$JWT_SECRET"
+  issuer: "$JWT_ISSUER"
+  audience: "$JWT_AUDIENCE"
+  realm: "ktor-app"
+  accessToken:
+    lifetime: 3600000
+  refreshToken:
+    lifetime: 2592000000
