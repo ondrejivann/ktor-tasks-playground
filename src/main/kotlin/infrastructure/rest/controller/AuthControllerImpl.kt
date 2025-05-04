@@ -134,7 +134,7 @@ class AuthControllerImpl(
     }
 
 //    private fun buildRedirectUri(call: ApplicationCall): String {
-//        // Ideálně použijte konfigurační hodnotu z application.yaml
+//        // Ideálně použijte konfigurační hodnotu z application-prod.yaml
 //        return try {
 //            applicationConfig.property("oauth.google.redirectUri").getString()
 //        } catch (e: Exception) {

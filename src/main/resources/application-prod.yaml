@@ -1,0 +1,5 @@
+flyway:
+  baselineOnMigrate: false
+
+logging:
+  level: INFO

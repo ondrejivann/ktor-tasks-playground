@@ -1,24 +1,14 @@
 package config.ktor
 
+import config.Environment
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.Application
-import io.ktor.server.engine.CommandLineConfig
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.engine.loadCommonConfiguration
-import io.ktor.server.netty.Netty
 
-fun main(args: Array<String>) {
-    embeddedServer(
-        Netty,
-        configure = {
-            val cliConfig = CommandLineConfig(args)
-            takeFrom(cliConfig.engineConfig)
-            loadCommonConfiguration(cliConfig.rootConfig.environment.config)
-        },
-    ).start(wait = true)
-}
+val logger = KotlinLogging.logger {}
 
 @Suppress("unused")
 fun Application.module() {
+    logger.info { "🚀 Starting in ${Environment.current} mode" }
     // configureContentNegotiation() // https://github.com/ExpediaGroup/graphql-kotlin/issues/2025
     rateLimit()
     configureStatusPages()

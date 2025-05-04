@@ -13,11 +13,14 @@ plugins {
 group = "com.example"
 version = "0.0.1"
 
+val ktorEnv = System.getenv("KTOR_ENV")?.takeIf { it.isNotBlank() } ?: "dev"
+
 application {
     mainClass = "io.ktor.server.netty.EngineMain"
-
-    val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    applicationDefaultJvmArgs = listOf(
+        "-Dio.ktor.development=${ktorEnv == "dev"}",
+        "-DKTOR_ENV=$ktorEnv",
+    )
 }
 
 repositories {
@@ -42,6 +45,10 @@ ktlint {
 }
 
 tasks {
+    withType<JavaExec> {
+        args = listOf("-config=application.yaml", "-config=application-$ktorEnv.yaml")
+    }
+
     named<ShadowJar>("shadowJar") {
         // sloučí všechny META-INF/services/* soubory z závislostí do jednoho
         mergeServiceFiles()
