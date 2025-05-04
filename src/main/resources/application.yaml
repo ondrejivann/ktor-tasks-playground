@@ -37,3 +37,6 @@ jwt:
     lifetime: 3600000
   refreshToken:
     lifetime: 2592000000
+
+logging:
+  level: INFO
