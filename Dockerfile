@@ -39,12 +39,21 @@ COPY --from=builder /app/build/libs/ktor-exposed-task-app-all.jar ./app.jar
 # Ktor aplikace by měla číst proměnnou prostředí PORT od Renderu.
 # EXPOSE zde jen dokumentuje, který port je určený k vystavení. Render se o mapování postará.
 # Hodnota 10000 je častý default u Renderu, ale aplikace by měla číst env var PORT.
-EXPOSE 10000
+ENV PORT=8080
+ENV KTOR_ENV=dev
+
+EXPOSE ${PORT}
 
 # Příkaz pro spuštění aplikace
 # Použije se proměnná PORT poskytnutá Renderem. Ktor musí být nakonfigurován, aby ji četl.
 # Použij "0.0.0.0" jako host, aby server naslouchal na všech rozhraních uvnitř kontejneru.
 # Použij exec formu CMD pro správné zpracování signálů
-CMD ["java", "-jar", "./app.jar"]
+CMD java \
+    -DKTOR_ENV=${KTOR_ENV} \
+    -Dio.ktor.development=$([ "$KTOR_ENV" = "dev" ] && echo "true" || echo "false") \
+    -jar ./app.jar \
+    -config=application.yaml \
+    -config=application-${KTOR_ENV}.yaml \
+    -port=${PORT}
 # Alternativa s installDist:
 # CMD ["./bin/ktor-exposed-task-app"]

@@ -5,6 +5,7 @@ import infrastructure.rest.controller.AuthController
 import infrastructure.rest.controller.FileController
 import infrastructure.rest.controller.TaskAttachmentController
 import infrastructure.rest.controller.TaskController
+import infrastructure.rest.route.adminRoutes
 import infrastructure.rest.route.authRoutes
 import infrastructure.rest.route.fileRoutes
 import infrastructure.rest.route.taskAttachmentRoutes
@@ -20,6 +21,7 @@ fun Route.configureRestRoutes(
 ) {
     configureRestSerialization()
     authRoutes(authController)
+    adminRoutes()
     authenticate("auth-jwt") {
         taskRoutes(taskController)
         fileRoutes(fileController)
